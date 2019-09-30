@@ -1,0 +1,26 @@
+server:
+  port: 9000
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: test
+  devtools:
+    restart:
+      enabled: true
+
+  datasource:
+    initialization-mode: always
+    url: jdbc:mysql://localhost:3306/projectAssistant
+    username: mysql
+    password: mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  batch:
+    initialize-schema: always
