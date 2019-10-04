@@ -10,17 +10,38 @@ spring:
     restart:
       enabled: true
 
-  datasource:
-    initialization-mode: always
-    url: jdbc:mysql://localhost:3306/projectAssistant
-    username: mysql
-    password: mysql
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-  batch:
-    initialize-schema: always
+
+#  datasource:
+#    initialization-mode: always
+#    url: jdbc:mysql://localhost:3306/projectAssistant
+#    username: mysql
+#    password: mysql
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+
+#  jpa:
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: create-drop
+#    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+#  batch:
+#    initialize-schema: always
+
+#  data:
+#    mongodb:
+#      authentication-database: admin
+#      username: admin
+#      password: jelszo
+#      database: projectAssistant
+#      port: 27017
+#      host: localhost
+#
+#logging:
+#  level:
+#    org:
+#      springframework:
+#        data:
+#          mongodb:
+#            core:
+#              index=OFF:
+

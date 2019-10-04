@@ -1,8 +1,8 @@
 package hu.bme.akos.ruszkabanyai.service;
 
-import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
-import hu.bme.akos.ruszkabanyai.dao.TaskRepository;
-import hu.bme.akos.ruszkabanyai.dao.UserRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.ProjectRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.TaskRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.UserRepository;
 import hu.bme.akos.ruszkabanyai.dto.TaskDTO;
 import hu.bme.akos.ruszkabanyai.entity.Project;
 import hu.bme.akos.ruszkabanyai.entity.Task;
@@ -41,8 +41,7 @@ public class TaskRestService {
 
     @GetMapping
     public ResponseEntity getTasks() {
-        @SuppressWarnings("OptionalGetWithoutIsPresent")
-        User user = userRepository.findByName(authentication.getUserName()).get();
+        User user = getUser();
         return ResponseEntity.ok(user.getTaskList().stream().map(Task::entityToDTO).collect(Collectors.toList()));
     }
 
@@ -58,7 +57,7 @@ public class TaskRestService {
     public ResponseEntity newTaskForProject(@RequestBody @Valid TaskDTO dto) throws Exception {
         User developer = null;
         if (dto.getDeveloper() != null) {
-            developer = userRepository.findByName(dto.getDeveloper().getName()).orElse(null);
+            developer = userRepository.findByEmail(dto.getDeveloper().getEmail()).orElse(null);
         }
         Project project = projectRepository.findByName(dto.getProject().getName())
                 .orElseThrow(() -> new Exception("Fail állapot"));
@@ -76,7 +75,7 @@ public class TaskRestService {
         Task task = taskRepository.findByInfoName(dto.getInfo().getName()).get();
         User developer = null;
         if (dto.getDeveloper() != null) {
-            developer = userRepository.findByName(dto.getDeveloper().getName()).orElse(null);
+            developer = userRepository.findByEmail(dto.getDeveloper().getEmail()).orElse(null);
         }
         if (!task.getInfo().getName().equals(dto.getInfo().getName()) &&
                 taskRepository.findByInfoName(dto.getInfo().getName()).isPresent()) {
@@ -94,5 +93,9 @@ public class TaskRestService {
             taskRepository.delete(task);
             return ResponseEntity.ok().build();
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    }
+
+    private User getUser() {
+        return userRepository.findByEmail(authentication.getUserName()).orElse(null);
     }
 }

@@ -1,6 +1,6 @@
 package hu.bme.akos.ruszkabanyai.security;
 
-import hu.bme.akos.ruszkabanyai.dao.UserRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,7 +14,7 @@ public class UserService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        return userRepository.findByName(s).map(UserPrincipal::new).orElse(null);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        return userRepository.findByEmail(email).map(UserPrincipal::new).orElse(null);
     }
 }

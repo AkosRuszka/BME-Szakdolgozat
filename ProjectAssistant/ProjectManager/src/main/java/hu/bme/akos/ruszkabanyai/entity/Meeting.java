@@ -2,7 +2,6 @@ package hu.bme.akos.ruszkabanyai.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import hu.bme.akos.ruszkabanyai.dto.MeetingDTO;
-import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
 
@@ -18,8 +17,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false, of = "name")
-public class Meeting extends BaseEntity {
-
+public class Meeting {
+    @Id
     @NotBlank
     private String name;
 

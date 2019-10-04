@@ -1,7 +1,6 @@
 package hu.bme.akos.ruszkabanyai.entity;
 
 import hu.bme.akos.ruszkabanyai.dto.ProjectDTO;
-import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
 
@@ -17,8 +16,8 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false, of = "name")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Project extends BaseEntity {
-
+public class Project {
+    @Id
     @NotBlank
     private String name;
 

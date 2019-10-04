@@ -1,7 +1,6 @@
 package hu.bme.akos.ruszkabanyai.entity;
 
 import hu.bme.akos.ruszkabanyai.dto.MinutesDTO;
-import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import hu.bme.akos.ruszkabanyai.entity.helper.TaskDescription;
 import lombok.*;
@@ -16,8 +15,8 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = false, of = "hashMarkId")
 @AllArgsConstructor
 @NoArgsConstructor
-public class Minutes extends BaseEntity {
-
+public class Minutes {
+    @Id
     @GeneratedValue(strategy = GenerationType.TABLE)
     private Integer hashMarkId;
 

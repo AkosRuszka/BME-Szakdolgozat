@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="2.0">
+    <persistence-unit name="ogm-mongodb" transaction-type="JTA">
+        <provider>org.hibernate.ogm.jpa.HibernateOgmPersistence</provider>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+            <property name="hibernate.ogm.datastore.provider" value="MONGODB" />
+            <property name="hibernate.ogm.datastore.database" value="projectAssistant" />
+            <property name="hibernate.ogm.datastore.create_database" value="true" />
+            <property name="hibernate.org.datastore.host" value="localhost"/>
+            <property name="hibernate.ogm.datastore.port" value="27017"/>
+            <property name="hibernate.ogm.datastore.username" value="admin"/>
+            <property name="hibernate.ogm.datastore.password" value="jelszo"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>

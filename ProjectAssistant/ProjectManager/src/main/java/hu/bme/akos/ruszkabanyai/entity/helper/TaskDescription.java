@@ -2,7 +2,6 @@ package hu.bme.akos.ruszkabanyai.entity.helper;
 
 import lombok.*;
 
-import javax.persistence.Embeddable;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -10,7 +9,6 @@ import java.util.Date;
 
 @Data
 @Builder
-@Embeddable
 @EqualsAndHashCode(of = "name")
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,7 +1,7 @@
 package hu.bme.akos.ruszkabanyai.security;
 
-import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
-import hu.bme.akos.ruszkabanyai.dao.TaskRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.ProjectRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.TaskRepository;
 import hu.bme.akos.ruszkabanyai.entity.User;
 import org.springframework.stereotype.Service;
 

@@ -1,7 +1,6 @@
 package hu.bme.akos.ruszkabanyai.entity;
 
 import hu.bme.akos.ruszkabanyai.dto.TaskDTO;
-import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import hu.bme.akos.ruszkabanyai.entity.helper.TaskDescription;
 import lombok.*;
@@ -16,7 +15,8 @@ import javax.validation.constraints.NotNull;
 @EqualsAndHashCode(callSuper = false, of = "info")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Task extends BaseEntity {
+public class Task {
+    @Id
     @NotNull
     @Embedded
     public TaskDescription info;

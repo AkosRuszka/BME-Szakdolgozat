@@ -1,7 +1,6 @@
 package hu.bme.akos.ruszkabanyai.entity;
 
 import hu.bme.akos.ruszkabanyai.dto.UserDTO;
-import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
 
@@ -21,14 +20,14 @@ import java.util.stream.Stream;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false, of = "email")
 @Data
-public class User extends BaseEntity {
+public class User {
 
     @NotBlank
     private String name;
 
+    @Id
     @NotBlank
     @Email
-    @Column(unique = true)
     private String email;
 
     @ManyToMany(mappedBy = "participantList", fetch = FetchType.LAZY)

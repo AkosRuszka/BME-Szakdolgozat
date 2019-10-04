@@ -1,7 +1,7 @@
 package hu.bme.akos.ruszkabanyai.service;
 
-import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
-import hu.bme.akos.ruszkabanyai.dao.UserRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.ProjectRepository;
+import hu.bme.akos.ruszkabanyai.dao.interfaces.UserRepository;
 import hu.bme.akos.ruszkabanyai.dto.ProjectDTO;
 import hu.bme.akos.ruszkabanyai.dto.UserDTO;
 import hu.bme.akos.ruszkabanyai.entity.Project;
@@ -118,6 +118,6 @@ public class ProjectRestService {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private User getAuthenticatedUser() {
-        return userRepository.findByName(authentication.getUserName()).get();
+        return userRepository.findByEmail(authentication.getUserName()).get();
     }
 }
