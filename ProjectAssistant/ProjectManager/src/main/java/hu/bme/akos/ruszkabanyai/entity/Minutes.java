@@ -5,34 +5,43 @@ import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import hu.bme.akos.ruszkabanyai.entity.helper.TaskDescription;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
-@Entity
-@EqualsAndHashCode(callSuper = false, of = "hashMarkId")
+@Document
+@EqualsAndHashCode(callSuper = false, of = "title")
 @AllArgsConstructor
 @NoArgsConstructor
 public class Minutes extends BaseEntity {
-
-    @GeneratedValue(strategy = GenerationType.TABLE)
-    private Integer hashMarkId;
+    @Id
+    private String title;
 
     @NotNull
-    @OneToOne(mappedBy = "minute")
-    private Meeting meeting;
+    private String meetingName;
 
-    @ManyToMany
-    @JoinTable(name = "absent_minutes_user",
-            joinColumns = @JoinColumn(name = "minutes_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<User> absentList; /* hiányzók */
+    @Builder.Default
+    private Set<String> absentEmailSet = new HashSet<>();
 
-    @ElementCollection
-    @CollectionTable(name = "minute_taskdescription", joinColumns = @JoinColumn(name = "minute_id"))
-    private List<TaskDescription> taskList; /* milyen elvégzendő feladat van */
+    @Builder.Default
+    private Set<TaskDescription> taskSet = new HashSet<>();
+
+    public void setMeeting(Meeting meeting) {
+        this.meetingName = meeting.getName();
+        if (meeting.getMinuteName() == null) {
+            meeting.setMinute(this);
+        }
+    }
+
+    public void setAbsentNameSet(Set<User> users) {
+        this.absentEmailSet = users.stream().map(User::getEmail).collect(Collectors.toSet());
+    }
 
     public MinutesDTO entityToDTO() {
         return EntityMapper.entityToDTO(this);

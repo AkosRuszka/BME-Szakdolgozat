@@ -1,10 +1,13 @@
 package hu.bme.akos.ruszkabanyai.service;
 
+import hu.bme.akos.ruszkabanyai.dao.MeetingRepository;
 import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
+import hu.bme.akos.ruszkabanyai.dao.TaskRepository;
 import hu.bme.akos.ruszkabanyai.dao.UserRepository;
 import hu.bme.akos.ruszkabanyai.dto.ProjectDTO;
-import hu.bme.akos.ruszkabanyai.dto.UserDTO;
+import hu.bme.akos.ruszkabanyai.entity.Meeting;
 import hu.bme.akos.ruszkabanyai.entity.Project;
+import hu.bme.akos.ruszkabanyai.entity.Task;
 import hu.bme.akos.ruszkabanyai.entity.User;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import hu.bme.akos.ruszkabanyai.security.IAuthenticationFacade;
@@ -15,8 +18,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,31 +34,37 @@ public class ProjectRestService {
 
     private final UserRepository userRepository;
 
+    private final TaskRepository taskRepository;
+
+    private final MeetingRepository meetingRepository;
+
     private final IAuthenticationFacade authentication;
 
-    public ProjectRestService(ProjectRepository projectRepository,
-                              UserRepository userRepository, IAuthenticationFacade authentication) {
+    public ProjectRestService(ProjectRepository projectRepository, TaskRepository taskRepository,
+                              UserRepository userRepository, MeetingRepository meetingRepository,
+                              IAuthenticationFacade authentication) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.meetingRepository = meetingRepository;
+        this.taskRepository = taskRepository;
         this.authentication = authentication;
     }
 
     @GetMapping
     public ResponseEntity<List<ProjectDTO>> getProjects() {
-        return ResponseEntity.ok(getAuthenticatedUser().getAllProjects().stream()
-                .map(EntityMapper::entityToDtoOtherCall).collect(Collectors.toList()));
+        return ResponseEntity.ok(projectRepository.findAllByNameIn(new ArrayList<>(getAuthenticatedUser().getProjectNameSet()))
+                .stream().map(EntityMapper::entityToDTO).collect(Collectors.toList()));
     }
 
     @GetMapping("{projectName}")
     @PreAuthorize("@securityService.isInsider(#projectName)")
     public ResponseEntity<ProjectDTO> getProject(@PathVariable String projectName) {
-        Optional<ProjectDTO> result = getAuthenticatedUser().getAllProjects().stream()
-                .filter(p -> p.getName().equals(projectName))
-                .map(Project::entityToDto)
-                .findFirst();
-
-        return result.isPresent() ?
-                ResponseEntity.ok(result.get()) : ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        if (getAuthenticatedUser().getProjectNameSet().contains(projectName)) {
+            return projectRepository.findByName(projectName)
+                    .map(Project::entityToDto).map(ResponseEntity::ok)
+                    .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @PostMapping
@@ -62,13 +73,9 @@ public class ProjectRestService {
         Project newProject = Project.builder()
                 .name(dto.getName()).description(dto.getDescription()).build();
         newProject.setProjectOwner(getAuthenticatedUser());
+        userRepository.save(getAuthenticatedUser());
 
-        userRepository.findAllByNameIn(
-                dto.getParticipantList()
-                        .stream().map(UserDTO::getName)
-                        .collect(Collectors.toList())
-        ).forEach(u -> {
-            u.getParticipanProjectList().add(newProject);
+        userRepository.findAllByEmailIn(new ArrayList<>(dto.getParticipantSet())).forEach(u -> {
             newProject.addParticipant(u);
             userRepository.save(u);
         });
@@ -87,12 +94,31 @@ public class ProjectRestService {
         project.setName(dto.getName());
         project.setDescription(dto.getDescription());
 
-        List<User> notRemovableUsers = userRepository.findAllByNameIn(dto.getParticipantList().stream()
-                .map(UserDTO::getName).collect(Collectors.toList()));
-        List<User> removableUsers = project.getParticipantList().stream()
-                .filter(u -> !(notRemovableUsers.contains(u))).collect(Collectors.toList());
-        project.getParticipantList().removeAll(removableUsers);
+        Set<String> intersection = new HashSet<>(project.getParticipantEmailSet());
+        intersection.retainAll(dto.getParticipantSet()); // intersection contains only elements in both set
+        Set<String> removableUsersName = new HashSet<>(project.getParticipantEmailSet());
+        removableUsersName.removeAll(intersection);
 
+        List<User> removableUsers = userRepository.findAllByEmailIn(new ArrayList<>(removableUsersName));
+        removableUsers.forEach(user -> {
+            user.getProjectNameSet().remove(projectName);
+            project.getParticipantEmailSet().remove(user.getEmail());
+        });
+        userRepository.saveAll(removableUsers);
+
+        List<User> userInProject = userRepository.findAllByEmailIn(new ArrayList<>(dto.getParticipantSet()));
+        project.setParticipantSet(new HashSet<>(userInProject));
+        userRepository.saveAll(userInProject);
+
+        if (!projectName.equals(dto.getName())) {
+            List<Task> task = taskRepository.findAllByInfoNameIn(new ArrayList<>(project.getTaskNameSet()));
+            task.forEach(t -> t.setProject(project));
+            taskRepository.saveAll(task);
+
+            List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameSet()));
+            meetings.forEach(m -> m.setProject(project));
+            meetingRepository.saveAll(meetings);
+        }
         return ResponseEntity.ok(projectRepository.save(project).entityToDto());
     }
 
@@ -100,6 +126,24 @@ public class ProjectRestService {
     @PreAuthorize("@securityService.isOwner(#projectName)")
     public ResponseEntity deleteProject(@PathVariable String projectName) {
         Project project = getProjectByName(projectName);
+
+        List<User> users = userRepository.findAllByEmailIn(new ArrayList<>(project.getParticipantEmailSet()));
+        users.forEach(user -> {
+            user.getProjectNameSet().remove(project.getName());
+            user.getTaskNameSet().removeAll(project.getTaskNameSet());
+            user.getMeetingNameSet().removeAll(project.getMeetingNameSet());
+        });
+        userRepository.saveAll(users);
+
+        User userOwner = userRepository.findByEmail(project.getProjectOwnerEmail()).get();
+        userOwner.getProjectNameSet().remove(projectName);
+        userRepository.save(userOwner);
+
+        List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameSet()));
+        meetingRepository.deleteAll(meetings);
+        List<Task> tasks = taskRepository.findAllByInfoNameIn(new ArrayList<>(project.getTaskNameSet()));
+        taskRepository.deleteAll(tasks);
+
         projectRepository.delete(project);
         return ResponseEntity.ok().build();
     }
@@ -108,7 +152,8 @@ public class ProjectRestService {
     @PreAuthorize("@securityService.isInsider(#projectName)")
     public ResponseEntity getTasksForProject(@PathVariable String projectName) {
         Project project = getProjectByName(projectName);
-        return ResponseEntity.ok(project.getTaskList().stream().map(EntityMapper::entityToDtoOtherCall));
+        List<Task> tasks = taskRepository.findAllByInfoNameIn(new ArrayList<>(project.getTaskNameSet()));
+        return ResponseEntity.ok(tasks.stream().map(EntityMapper::entityToDtoOtherCall));
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
@@ -118,6 +163,6 @@ public class ProjectRestService {
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private User getAuthenticatedUser() {
-        return userRepository.findByName(authentication.getUserName()).get();
+        return userRepository.findByEmail(authentication.getUserName()).get();
     }
 }

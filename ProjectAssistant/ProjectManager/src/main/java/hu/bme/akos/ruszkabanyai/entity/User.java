@@ -4,18 +4,16 @@ import hu.bme.akos.ruszkabanyai.dto.UserDTO;
 import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-@Entity
+@Document
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,44 +24,66 @@ public class User extends BaseEntity {
     @NotBlank
     private String name;
 
+    @Id
     @NotBlank
     @Email
-    @Column(unique = true)
     private String email;
 
-    @ManyToMany(mappedBy = "participantList", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Project> participanProjectList = new ArrayList<>();
+    private Set<String> projectNameSet = new HashSet<>();
 
-    @OneToMany(mappedBy = "projectOwner", fetch = FetchType.EAGER)
     @Builder.Default
-    private Set<Project> ownProjectList = new HashSet<>();
+    private Set<Role> roleSet = new HashSet<>();
 
-    @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
-    @JoinTable(joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "role_id", referencedColumnName = "id")})
     @Builder.Default
-    private Set<Role> roleList = new HashSet<>();
+    private Set<String> meetingNameSet = new HashSet<>();
 
-    @OneToMany(mappedBy = "chairPerson", fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Meeting> ownMeetingList = new ArrayList<>();
+    private Set<String> taskNameSet = new HashSet<>();
 
-    @ManyToMany(mappedBy = "attendeeList", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Meeting> meetingList = new ArrayList<>();
-
-    @OneToMany(mappedBy = "developer", fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Task> taskList = new ArrayList<>();
-
-    public List<Project> getAllProjects() {
-        return Stream.concat(participanProjectList.stream(), ownProjectList.stream()).collect(Collectors.toList());
+    public void addProjectList(Project project) {
+        projectNameSet.add(project.getName());
+        project.getParticipantEmailSet().add(email);
     }
 
-    public void addOwnProject(Project project) {
-        ownProjectList.add(project);
-        project.setProjectOwner(this);
+    public void addProjectListThanOwner(Project project) {
+        projectNameSet.add(project.getName());
+        if (project.getProjectOwnerEmail() == null || !project.getProjectOwnerEmail().equals(email)) {
+            project.setProjectOwner(this);
+        }
+    }
+
+    public void addMeeting(Meeting meeting) {
+        meetingNameSet.add(meeting.getName());
+        meeting.getAttendeeEmailSet().add(email);
+    }
+
+    public void setProjectSet(Set<Project> projects) {
+        this.projectNameSet = projects.stream().map(Project::getName).collect(Collectors.toSet());
+        projects.forEach(project -> {
+            if (!project.getProjectOwnerEmail().equals(email))
+                project.getParticipantEmailSet().add(email);
+        });
+    }
+
+    public void setMeetingSet(Set<Meeting> meetings) {
+        this.meetingNameSet = meetings.stream().map(Meeting::getName).collect(Collectors.toSet());
+        meetings.forEach(meeting -> {
+            if (!meeting.getChairPersonEmail().equals(email))
+                meeting.getAttendeeEmailSet().add(email);
+        });
+    }
+
+    public void setTaskSet(Set<Task> tasks) throws Exception {
+        if (tasks.stream().anyMatch(task -> task.getDeveloperEmail() != null && !task.getDeveloperEmail().equals(email))) {
+            throw new Exception("Task is not valid because this user not owns this task.");
+        }
+        this.taskNameSet = tasks.stream().map(t -> t.getInfo().getName()).collect(Collectors.toSet());
+        tasks.forEach(task -> {
+            if (task.getDeveloperEmail() == null || !task.getDeveloperEmail().equals(email)) {
+                task.setDeveloper(this);
+            }
+        });
     }
 
     public UserDTO entityToDTO() {
@@ -74,7 +94,7 @@ public class User extends BaseEntity {
         return User.builder()
                 .name(dto.getName())
                 .email(dto.getEmail())
-//                .roleList()
+//                .roleSet()
                 .build();
     }
 }

@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Builder
 @Data
@@ -19,17 +19,17 @@ public class MeetingDTO {
     @NotBlank
     private String name;
     private String description;
-    @NotNull
+    @NotBlank
     @Valid
-    private ProjectDTO project;
+    private String projectName;
     @NotBlank
     private String location;
     @NotNull
     private Date date;
-    private MinutesDTO minute;
-    @NotNull
+    private String minuteName;
+    @NotBlank
     @Valid
-    private UserDTO chairPerson;
-    private List<UserDTO> attendeeList;
+    private String chairPersonEmail;
+    private Set<String> attendeeEmailSet;
 
 }

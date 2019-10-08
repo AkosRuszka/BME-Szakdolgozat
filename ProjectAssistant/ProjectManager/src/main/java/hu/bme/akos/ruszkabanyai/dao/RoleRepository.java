@@ -1,13 +1,12 @@
 package hu.bme.akos.ruszkabanyai.dao;
 
 import hu.bme.akos.ruszkabanyai.entity.Role;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
-
-import javax.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @Transactional
-public interface RoleRepository extends JpaRepository<Role, Long> {
+public interface RoleRepository extends MongoRepository<Role, String> {
     Role findByName(String name);
 }

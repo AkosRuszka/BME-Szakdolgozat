@@ -6,15 +6,15 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class MinutesDTO {
-
-    private MeetingDTO meeting;
-    private List<UserDTO> absentList;
-    private List<TaskDescription> taskList;
+    private String title;
+    private String meetingName;
+    private Set<String> absentEmailSet;
+    private Set<TaskDescription> taskSet;
 }

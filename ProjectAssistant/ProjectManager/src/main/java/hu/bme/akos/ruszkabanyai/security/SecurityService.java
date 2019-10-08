@@ -1,5 +1,6 @@
 package hu.bme.akos.ruszkabanyai.security;
 
+import hu.bme.akos.ruszkabanyai.dao.MeetingRepository;
 import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
 import hu.bme.akos.ruszkabanyai.dao.TaskRepository;
 import hu.bme.akos.ruszkabanyai.entity.User;
@@ -16,32 +17,46 @@ public class SecurityService {
 
     private final TaskRepository taskRepository;
 
+    private final MeetingRepository meetingRepository;
+
     public SecurityService(IAuthenticationFacade auth,
-                           ProjectRepository projectRepository, TaskRepository taskRepository) {
+                           ProjectRepository projectRepository, TaskRepository taskRepository,
+                           MeetingRepository meetingRepository) {
         this.auth = auth;
         this.projectRepository = projectRepository;
         this.taskRepository = taskRepository;
+        this.meetingRepository = meetingRepository;
     }
 
     public boolean isOwner(@NotBlank String projectName) {
         return projectRepository.findByName(projectName)
-                .map(project -> project.getProjectOwner().equals(getUser())).orElse(false);
+                .map(project -> project.getProjectOwnerEmail().equals(getUser().getEmail())).orElse(false);
     }
 
     public boolean isDeveloper(@NotBlank String projectName) {
         return projectRepository.findByName(projectName)
-                .map(project -> project.getParticipantList().contains(getUser())).orElse(false);
+                .map(project -> project.getParticipantEmailSet().contains(getUser().getEmail())).orElse(false);
     }
 
     public boolean isInsider(@NotBlank String projectName) {
         return isDeveloper(projectName) || isOwner(projectName);
     }
 
+    public boolean isInsiderTask(@NotBlank String taskName) {
+        return taskRepository.findByTaskName(taskName).map(t -> isInsider(t.getProjectName())).orElse(false);
+    }
+
     public boolean isInsiderOnTask(@NotBlank String taskName) {
-        return taskRepository.findByInfoName(taskName).filter(task ->
-                isOwner(task.getProject().getName()) || ((isDeveloper(task.getProject().getName()) &&
-                        (task.getDeveloper() == null || task.getDeveloper().equals(getUser()))))
-        ).isPresent();
+        return taskRepository.findByTaskName(taskName).filter(task ->
+                isOwner(task.getProjectName()) || ((isDeveloper(task.getProjectName()) &&
+                        (task.getDeveloperEmail() == null || task.getDeveloperEmail().equals(getUser().getEmail())))))
+                .isPresent();
+    }
+
+    public boolean isInsiderOnMeeting(@NotBlank String meetingName) {
+        return meetingRepository.findByName(meetingName).filter(meeting ->
+                meeting.getChairPersonEmail().equals(getUser().getEmail()))
+                .isPresent();
     }
 
     private User getUser() {

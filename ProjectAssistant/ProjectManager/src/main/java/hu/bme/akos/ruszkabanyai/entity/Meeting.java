@@ -5,31 +5,32 @@ import hu.bme.akos.ruszkabanyai.dto.MeetingDTO;
 import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @Builder
-@Entity
+@Document
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false, of = "name")
 public class Meeting extends BaseEntity {
-
+    @Id
     @NotBlank
     private String name;
 
     @NotBlank
     private String description;
 
-    @NotNull
-    @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
-    private Project project;
+    @NotBlank
+    private String projectName;
 
     @NotBlank
     private String location;
@@ -38,24 +39,47 @@ public class Meeting extends BaseEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     private Date date;
 
-    @OneToOne
-    @JoinColumn(name = "minute_id")
-    private Minutes minute;
+    @NotBlank
+    private String minuteName;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User chairPerson;
+    @NotBlank
+    private String chairPersonEmail;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "meeting_attendee_person",
-            joinColumns = @JoinColumn(name = "fk_meeting"), inverseJoinColumns = @JoinColumn(name = "fk_user"))
-    private List<User> attendeeList;
+    @Builder.Default
+    private Set<String> attendeeEmailSet = new HashSet<>();
+
+    public void setProject(Project project) {
+        this.projectName = project.getName();
+        project.getMeetingNameSet().add(this.name);
+    }
+
+    public void setMinute(Minutes minute) {
+        this.minuteName = minute.getTitle();
+        if (minute.getMeetingName() == null) {
+            minute.setMeetingName(name);
+        }
+    }
+
+    public void setChairPerson(User user) {
+        this.chairPersonEmail = user.getEmail();
+        user.getMeetingNameSet().add(this.getName());
+    }
+
+    public void setAttendeeSet(Set<User> users) {
+        this.attendeeEmailSet = users.stream().map(User::getEmail).collect(Collectors.toSet());
+        users.forEach(user -> user.addMeeting(this));
+    }
 
     public MeetingDTO entityToDTO() {
         return EntityMapper.entityToDTO(this);
     }
 
     public static Meeting dtoToEntity(MeetingDTO dto) {
-        return null;
+        return Meeting.builder()
+                .name(dto.getName()).description(dto.getDescription())
+                .projectName(dto.getProjectName()).location(dto.getLocation())
+                .date(dto.getDate()).minuteName(dto.getMinuteName())
+                .chairPersonEmail(dto.getChairPersonEmail()).attendeeEmailSet(dto.getAttendeeEmailSet())
+                .build();
     }
 }

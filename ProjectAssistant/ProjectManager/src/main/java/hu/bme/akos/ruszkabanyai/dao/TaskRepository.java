@@ -1,16 +1,19 @@
 package hu.bme.akos.ruszkabanyai.dao;
 
 import hu.bme.akos.ruszkabanyai.entity.Task;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 @Transactional
-public interface TaskRepository extends JpaRepository<Task, Long> {
+public interface TaskRepository extends MongoRepository<Task, String> {
 
-    Optional<Task> findByInfoName(String names);
+    Optional<Task> findByTaskName(String name);
+
+    List<Task> findAllByInfoNameIn(List<String> names);
 
 }

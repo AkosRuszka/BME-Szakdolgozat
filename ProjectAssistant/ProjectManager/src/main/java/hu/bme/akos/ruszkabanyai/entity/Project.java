@@ -4,46 +4,71 @@ import hu.bme.akos.ruszkabanyai.dto.ProjectDTO;
 import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import java.util.ArrayList;
-import java.util.List;
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
 @Builder
-@Entity
+@Document
 @EqualsAndHashCode(callSuper = false, of = "name")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Project extends BaseEntity {
-
+    @Id
     @NotBlank
     private String name;
 
     @NotBlank
     private String description;
 
-    @OneToMany(mappedBy = "project", orphanRemoval = true)
+    @NotNull
     @Builder.Default
-    private List<Meeting> meetingList = new ArrayList<>();
+    private Boolean active = Boolean.TRUE;
 
-    @ManyToMany
-    @JoinTable(joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "project_id"))
     @Builder.Default
-    private List<User> participantList = new ArrayList<>();
+    private Set<String> meetingNameSet = new HashSet<>();
 
-    @ManyToOne
-    @JoinColumn(name = "project_id", nullable = false)
-    private User projectOwner;
-
-    @OneToMany(mappedBy = "project", orphanRemoval = true)
     @Builder.Default
-    private List<Task> taskList = new ArrayList<>();
+    private Set<String> participantEmailSet = new HashSet<>();
+
+    private String projectOwnerEmail;
+
+    @Builder.Default
+    private Set<String> taskNameSet = new HashSet<>();
+
+    public void setProjectOwner(User user) {
+        this.projectOwnerEmail = user.getEmail();
+        user.addProjectListThanOwner(this);
+    }
+
+    public void setMeetingNameSet(Set<Meeting> meetings) {
+        this.meetingNameSet = meetings.stream().map(Meeting::getName).collect(Collectors.toSet());
+        meetings.forEach(meeting -> {
+            if (meeting.getProjectName() == null) meeting.setProject(this);
+        });
+    }
+
+    public void setParticipantSet(Set<User> participantSet) {
+        this.participantEmailSet = participantSet.stream().map(User::getEmail).collect(Collectors.toSet());
+        participantSet.forEach(user -> user.addProjectList(this));
+    }
 
     public void addParticipant(User user) {
-        participantList.add(user);
+        this.participantEmailSet.add(user.getEmail());
+        user.addProjectList(this);
+    }
+
+    public void setTaskSet(Set<Task> tasks) {
+        this.taskNameSet = tasks.stream().map(t -> t.getInfo().getName()).collect(Collectors.toSet());
+        tasks.forEach(task -> {
+            if (task.getProjectName() == null) task.setProject(this);
+        });
     }
 
     public ProjectDTO entityToDto() {
@@ -54,15 +79,10 @@ public class Project extends BaseEntity {
         return Project.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .meetingList(dto.getMeetingList().stream().map(Meeting::dtoToEntity).collect(Collectors.toList()))
-                .participantList(dto.getParticipantList().stream().map(User::dtoToEntity).collect(Collectors.toList()))
-                .projectOwner(User.dtoToEntity(dto.getOwner()))
-                .taskList(dto.getTaskList().stream().map(Task::dtoToEntity).collect(Collectors.toList()))
+                .meetingNameSet(dto.getMeetingSet())
+                .participantEmailSet(dto.getParticipantSet())
+                .projectOwnerEmail(dto.getOwnerName())
+                .taskNameSet(dto.getTaskSet())
                 .build();
-    }
-
-    public void setProjectOwner(User user) {
-        projectOwner = user;
-        user.getOwnProjectList().add(this);
     }
 }

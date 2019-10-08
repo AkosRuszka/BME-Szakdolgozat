@@ -5,10 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.List;
+import java.util.Set;
 
 @Builder
 @Data
@@ -19,10 +18,9 @@ public class ProjectDTO {
     private String name;
     @NotBlank
     private String description;
-    private List<MeetingDTO> meetingList;
-    private List<UserDTO> participantList;
+    private Set<String> meetingSet;
+    private Set<String> participantSet;
     @NotNull
-    @Valid
-    private UserDTO owner;
-    private List<TaskDTO> taskList;
+    private String ownerName;
+    private Set<String> taskSet;
 }

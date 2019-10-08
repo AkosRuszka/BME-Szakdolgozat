@@ -1,17 +1,13 @@
 package hu.bme.akos.ruszkabanyai.entity.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.data.annotation.Version;
 
-import javax.persistence.*;
-
-@MappedSuperclass
+@Getter
+@Setter
 public abstract class BaseEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    @JsonIgnore
-    private Long id;
-
     @Version
     @JsonIgnore
     private Long version;

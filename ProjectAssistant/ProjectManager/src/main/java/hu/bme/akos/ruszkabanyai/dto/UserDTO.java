@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -19,10 +18,8 @@ public class UserDTO {
     private String name;
     @NotBlank
     private String email;
-    private Set<Role> roleList;
-    private List<ProjectDTO> participanProjectList;
-    private List<ProjectDTO> ownProjectList;
-    private List<MeetingDTO> ownMeetingList;
-    private List<MeetingDTO> meetingList;
-    private List<TaskDTO> taskList;
+    private Set<Role> roleSet;
+    private Set<String> projectNameSet;
+    private Set<String> meetingNameSet;
+    private Set<String> taskNameSet;
 }

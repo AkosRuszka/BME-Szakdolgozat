@@ -1,5 +1,27 @@
 server:
-  port: 9000
+  port: 9001
+  error:
+    whitelabel:
+      enabled: true
+    path: /projectassistant-error
+  tomcat:
+    max-threads: 100
+    max-swallow-size: 1MB
+    max-http-post-size: 1MB
+    accesslog:
+      enabled: true
+      directory: accesslog
+      file-date-format: yyyy-MM-dd
+      prefix: accesslog
+      suffix: .log
+  connection-timeout: 5s
+  max-http-header-size: 10KB
+#  ssl:
+#    enabled: true
+#    protocol: TLS
+#    key-store: keystore-path
+#    key-store-password: my_password
+#    key-alias: projectassistant
 
 spring:
   main:
@@ -9,18 +31,14 @@ spring:
   devtools:
     restart:
       enabled: true
+  activemq:
+    broker-url: tcp://127.0.0.1:61616
+    packages:
+      trusted: org.springframework.remoting.support,java.lang,hu.bme.szakdolgozat
 
-  datasource:
-    initialization-mode: always
-    url: jdbc:mysql://localhost:3306/projectAssistant
-    username: mysql
-    password: mysql
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: create-drop
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
-  batch:
-    initialize-schema: always
+logging:
+  level:
+    root: warn
+    org.apache.activemq: debug
+    org.springframework.jms: debug
+    org.springframework: info

@@ -18,7 +18,7 @@ import javax.validation.constraints.NotNull;
 public class TaskDTO {
     @NotNull
     private TaskDescription info;
-    private UserDTO developer;
+    private String developerEmail;
     @NotNull
-    private ProjectDTO project;
+    private String projectName;
 }

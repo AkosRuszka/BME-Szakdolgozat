@@ -7,6 +7,7 @@ import hu.bme.akos.ruszkabanyai.dto.TaskDTO;
 import hu.bme.akos.ruszkabanyai.entity.Project;
 import hu.bme.akos.ruszkabanyai.entity.Task;
 import hu.bme.akos.ruszkabanyai.entity.User;
+import hu.bme.akos.ruszkabanyai.helper.NotFoundEntityException;
 import hu.bme.akos.ruszkabanyai.security.IAuthenticationFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -42,55 +45,74 @@ public class TaskRestService {
     @GetMapping
     public ResponseEntity getTasks() {
         @SuppressWarnings("OptionalGetWithoutIsPresent")
-        User user = userRepository.findByName(authentication.getUserName()).get();
-        return ResponseEntity.ok(user.getTaskList().stream().map(Task::entityToDTO).collect(Collectors.toList()));
+        User user = userRepository.findByEmail(authentication.getUserName()).get();
+        List<Task> tasks = taskRepository.findAllByInfoNameIn(new ArrayList<>(user.getTaskNameSet()));
+        return ResponseEntity.ok(tasks.stream().map(Task::entityToDTO).collect(Collectors.toList()));
     }
 
     @GetMapping("{taskName}")
+    @PreAuthorize("@securityService.isInsiderTask(#taskName)")
     public ResponseEntity getTask(@PathVariable String taskName) {
-        TaskDTO dto = taskRepository.findByInfoName(taskName).map(Task::entityToDTO).orElse(null);
-        return dto == null ?
-                ResponseEntity.status(HttpStatus.NO_CONTENT).build() : ResponseEntity.ok(dto);
+        return taskRepository.findByTaskName(taskName)
+                .map(t -> ResponseEntity.ok(t.entityToDTO())).orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }
 
     @PostMapping
-    @PreAuthorize("@securityService.isInsider(#dto.project.getName())")
-    public ResponseEntity newTaskForProject(@RequestBody @Valid TaskDTO dto) throws Exception {
+    @PreAuthorize("@securityService.isInsider(#dto.projectName)")
+    public ResponseEntity newTaskForProject(@RequestBody @Valid TaskDTO dto) {
         User developer = null;
-        if (dto.getDeveloper() != null) {
-            developer = userRepository.findByName(dto.getDeveloper().getName()).orElse(null);
+        if (dto.getDeveloperEmail() != null) {
+            developer = userRepository.findByEmail(dto.getDeveloperEmail()).orElse(null);
         }
-        Project project = projectRepository.findByName(dto.getProject().getName())
-                .orElseThrow(() -> new Exception("Fail állapot"));
-        Task task = Task.builder()
-                .info(dto.getInfo())
-                .developer(developer)
-                .project(project)
-                .build();
-        return ResponseEntity.ok(taskRepository.save(task).entityToDTO());
+        try {
+            Project project = projectRepository.findByName(dto.getProjectName())
+                    .orElseThrow(() -> new NotFoundEntityException("Nem található a projekt"));
+            Task task = Task.builder()
+                    .info(dto.getInfo())
+                    .projectName(project.getName())
+                    .build();
+            task.setTaskName(dto.getInfo().getName());
+            task.setDeveloper(developer);
+            userRepository.save(developer);
+            return ResponseEntity.ok(taskRepository.save(task).entityToDTO());
+        } catch (NotFoundEntityException e) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
     }
 
-    @PutMapping
-    @PreAuthorize("@securityService.isInsiderOnTask(#dto.getInfo().getName())")
-    public ResponseEntity updateTask(@RequestBody @Valid TaskDTO dto) {
-        Task task = taskRepository.findByInfoName(dto.getInfo().getName()).get();
+    @PutMapping("{taskName}")
+    @PreAuthorize("@securityService.isInsiderOnTask(#taskName)")
+    public ResponseEntity updateTask(@PathVariable String taskName, @RequestBody @Valid TaskDTO dto) {
+        Task task = taskRepository.findByTaskName(taskName).get();
         User developer = null;
-        if (dto.getDeveloper() != null) {
-            developer = userRepository.findByName(dto.getDeveloper().getName()).orElse(null);
+        if (dto.getDeveloperEmail() != null) {
+            developer = userRepository.findByEmail(dto.getDeveloperEmail()).orElse(null);
         }
-        if (!task.getInfo().getName().equals(dto.getInfo().getName()) &&
-                taskRepository.findByInfoName(dto.getInfo().getName()).isPresent()) {
+        if (!taskName.equals(dto.getInfo().getName()) &&
+                taskRepository.findByTaskName(dto.getInfo().getName()).isPresent()) {
             return ResponseEntity.status(HttpStatus.FOUND).body("Már létezik ilyen névvel feladat!");
         }
         task.setInfo(dto.getInfo());
+        task.setTaskName(dto.getInfo().getName());
         task.setDeveloper(developer);
+
+        if(!taskName.equals(dto.getInfo().getName())) {
+            Project project = projectRepository.findByName(task.getProjectName()).get();
+            project.getTaskNameSet().remove(taskName);
+            project.getTaskNameSet().add(dto.getInfo().getName());
+            projectRepository.save(project);
+            if(developer != null)
+                developer.getTaskNameSet().remove(taskName);
+        }
+
+        userRepository.save(developer);
         return ResponseEntity.ok(taskRepository.save(task).entityToDTO());
     }
 
     @DeleteMapping("{taskName}")
     @PreAuthorize("@securityService.isInsiderOnTask(#taskName)")
     public ResponseEntity deleteTask(@PathVariable String taskName) {
-        return taskRepository.findByInfoName(taskName).map(task -> {
+        return taskRepository.findByTaskName(taskName).map(task -> {
             taskRepository.delete(task);
             return ResponseEntity.ok().build();
         }).orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
