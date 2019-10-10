@@ -27,14 +27,16 @@ spring:
   main:
     allow-bean-definition-overriding: true
   profiles:
-    active: test
+    active: @profile@
   devtools:
     restart:
       enabled: true
-  activemq:
-    broker-url: tcp://127.0.0.1:61616
-    packages:
-      trusted: org.springframework.remoting.support,java.lang,hu.bme.szakdolgozat
+  data:
+    mongodb:
+      host: @mongo.host@
+      database: @mongo.database.name@
+#      username: @mongo.root.username@
+#      password: @mongo.root.password@
 
 logging:
   level:
@@ -42,3 +44,12 @@ logging:
     org.apache.activemq: debug
     org.springframework.jms: debug
     org.springframework: info
+
+activemq:
+  queue:
+    name: @activemq.queue.name@
+  broker:
+    url: @activemq.broker.url@
+  producer:
+    name: @activemq.producer.name@
+    password: @activemq.producer.password@

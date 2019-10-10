@@ -31,6 +31,24 @@
         <lombok.version>1.18.10</lombok.version>
         <jsonwebtoken.jjwt.version>0.9.1</jsonwebtoken.jjwt.version>
         <java.version>11</java.version>
+
+        <profile>test</profile>
+
+        <mongo.host>localhost</mongo.host>
+        <mongo.database.name>projectAssistant</mongo.database.name>
+        <mongo.root.username>root</mongo.root.username>
+        <mongo.root.password>example</mongo.root.password>
+        <mongo.username>springboot</mongo.username>
+        <mongo.password>password123</mongo.password>
+
+        <activemq.queue.name>projectAssistant</activemq.queue.name>
+        <activemq.broker.url>tcp://localhost:61616</activemq.broker.url>
+        <activemq.producer.name>myproducer</activemq.producer.name>
+        <activemq.producer.password>myproducerpassword</activemq.producer.password>
+        <activemq.consumer.name>myconsumer</activemq.consumer.name>
+        <activemq.consumer.password>myconsumerpassword</activemq.consumer.password>
+        <activemq.admin.username>admin</activemq.admin.username>
+        <activemq.admin.password>admin123</activemq.admin.password>
     </properties>
 
     <dependencyManagement>

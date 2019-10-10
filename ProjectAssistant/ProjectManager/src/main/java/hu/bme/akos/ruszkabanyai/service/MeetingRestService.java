@@ -13,34 +13,48 @@ import hu.bme.akos.ruszkabanyai.entity.User;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import hu.bme.akos.ruszkabanyai.helper.NotFoundEntityException;
 import hu.bme.akos.ruszkabanyai.security.IAuthenticationFacade;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.jms.Destination;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RestController
 @RequestMapping("meeting")
 @PreAuthorize("hasRole('USER')")
 public class MeetingRestService {
 
-    @Autowired
-    private MeetingRepository meetingRepository;
+    private final MeetingRepository meetingRepository;
 
-    @Autowired
-    private IAuthenticationFacade authentication;
+    private final IAuthenticationFacade authentication;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private ProjectRepository projectRepository;
+    private final ProjectRepository projectRepository;
 
-    @Autowired
-    private MinuteRepository minuteRepository;
+    private final MinuteRepository minuteRepository;
+
+    private final JmsTemplate jmsTemplate;
+
+    private final Destination destination;
+
+    public MeetingRestService(MeetingRepository meetingRepository, IAuthenticationFacade authentication,
+                              UserRepository userRepository, ProjectRepository projectRepository,
+                              MinuteRepository minuteRepository, JmsTemplate jmsTemplate, Destination destination) {
+        this.meetingRepository = meetingRepository;
+        this.authentication = authentication;
+        this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
+        this.minuteRepository = minuteRepository;
+        this.jmsTemplate = jmsTemplate;
+        this.destination = destination;
+    }
 
     @GetMapping
     public ResponseEntity getMeetings() {
@@ -181,6 +195,17 @@ public class MeetingRestService {
                                        @PathVariable("minuteName") String minuteName,
                                        @RequestBody MinutesDTO dto) {
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/jms-test/{message}")
+    public ResponseEntity test(@PathVariable String message) {
+        publish(message);
+        log.error("Elküldtünk egy ilyen üzenetet: " + message);
+        return ResponseEntity.ok().build();
+    }
+
+    private void publish(String message) {
+        jmsTemplate.convertAndSend(destination, message);
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")

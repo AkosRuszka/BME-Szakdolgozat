@@ -1,0 +1,11 @@
+server:
+  port: 9002
+
+activemq:
+  queue:
+    name: @activemq.queue.name@
+  broker:
+    url: @activemq.broker.url@
+  consumer:
+    name: @activemq.consumer.name@
+    password: @activemq.consumer.password@

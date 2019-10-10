@@ -1,0 +1,32 @@
+version: '2'
+services:
+
+  activemq:
+    image: webcenter/activemq
+    hostname: activeMQ
+    container_name: activeMQ
+    volumes:
+      - ./jms/conf:/opt/activemq/conf
+      - ./jms/data:/mnt/activemq/data
+    ports:
+      # mqtt
+      - "1883:1883"
+      # amqp
+      - "5672:5672"
+      # ui
+      - "8161:8161"
+      # stomp
+      - "61613:61613"
+      # ws
+      - "61614:61614"
+      # jms
+      - "61616:61616"
+    environment:
+      - ACTIVEMQ_CONFIG_DEFAULTACCOUNT="false"
+      - ACTIVEMQ_ADMIN_LOGIN=admin
+      - ACTIVEMQ_ADMIN_PASSWORD=admin123
+      - ACTIVEMQ_USERS_myproducer=myproducerpassword
+      - ACTIVEMQ_GROUPS_writes=myproducer
+      - ACTIVEMQ_USERS_myconsumer=myconsumerpassword
+      - ACTIVEMQ_GROUPS_reads=myconsumer
+      - ACTIVEMQ_CONFIG_QUEUES_projectAssistant1=projectAssistant
