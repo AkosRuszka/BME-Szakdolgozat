@@ -11,7 +11,7 @@ import javax.jms.Destination;
 
 
 @Configuration
-public class MQConfig {
+public class Config {
 
     @Value("${activemq.broker.url}")
     private String brokerUrl;

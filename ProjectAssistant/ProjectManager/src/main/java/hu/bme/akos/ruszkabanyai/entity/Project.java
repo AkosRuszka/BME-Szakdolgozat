@@ -2,6 +2,7 @@ package hu.bme.akos.ruszkabanyai.entity;
 
 import hu.bme.akos.ruszkabanyai.dto.ProjectDTO;
 import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
+import hu.bme.akos.ruszkabanyai.entity.base.UpdateNotifier;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -9,7 +10,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,7 +22,7 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = false, of = "name")
 @NoArgsConstructor
 @AllArgsConstructor
-public class Project extends BaseEntity {
+public class Project extends BaseEntity implements UpdateNotifier {
     @Id
     @NotBlank
     private String name;
@@ -84,5 +87,12 @@ public class Project extends BaseEntity {
                 .projectOwnerEmail(dto.getOwnerName())
                 .taskNameSet(dto.getTaskSet())
                 .build();
+    }
+
+    @Override
+    public List<String> getEmailsNotification() {
+        ArrayList<String> list = new ArrayList<>(participantEmailSet);
+        list.add(projectOwnerEmail);
+        return list;
     }
 }

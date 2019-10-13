@@ -2,12 +2,12 @@ version: '2'
 services:
 
   activemq:
-    image: webcenter/activemq
+    image: rmohr/activemq
     hostname: activeMQ
     container_name: activeMQ
-    volumes:
-      - ./jms/conf:/opt/activemq/conf
-      - ./jms/data:/mnt/activemq/data
+#    volumes:
+#      - ./jms/conf:/opt/activemq/conf
+#      - ./jms/data:/mnt/activemq/data
     ports:
       # mqtt
       - "1883:1883"

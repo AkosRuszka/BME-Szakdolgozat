@@ -3,6 +3,7 @@ package hu.bme.akos.ruszkabanyai.entity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import hu.bme.akos.ruszkabanyai.dto.MeetingDTO;
 import hu.bme.akos.ruszkabanyai.entity.base.BaseEntity;
+import hu.bme.akos.ruszkabanyai.entity.base.UpdateNotifier;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -10,8 +11,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,7 +24,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false, of = "name")
-public class Meeting extends BaseEntity {
+public class Meeting extends BaseEntity implements UpdateNotifier {
     @Id
     @NotBlank
     private String name;
@@ -37,7 +40,7 @@ public class Meeting extends BaseEntity {
 
     @NotNull
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    private Date date;
+    private LocalDateTime date;
 
     @NotBlank
     private String minuteName;
@@ -81,5 +84,12 @@ public class Meeting extends BaseEntity {
                 .date(dto.getDate()).minuteName(dto.getMinuteName())
                 .chairPersonEmail(dto.getChairPersonEmail()).attendeeEmailSet(dto.getAttendeeEmailSet())
                 .build();
+    }
+
+    @Override
+    public List<String> getEmailsNotification() {
+        List<String> emails = new ArrayList<>(attendeeEmailSet);
+        emails.add(chairPersonEmail);
+        return emails;
     }
 }

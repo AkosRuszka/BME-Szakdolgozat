@@ -9,3 +9,20 @@ activemq:
   consumer:
     name: @activemq.consumer.name@
     password: @activemq.consumer.password@
+
+spring:
+  mail:
+    host: @mail.host@
+    port: @mail.port@
+    username: @mail.username@
+    password: @mail.password@
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
+
+email:
+  enabled: @email.enabled@

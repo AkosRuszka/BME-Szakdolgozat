@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Builder
@@ -25,7 +25,7 @@ public class MeetingDTO {
     @NotBlank
     private String location;
     @NotNull
-    private Date date;
+    private LocalDateTime date;
     private String minuteName;
     @NotBlank
     @Valid

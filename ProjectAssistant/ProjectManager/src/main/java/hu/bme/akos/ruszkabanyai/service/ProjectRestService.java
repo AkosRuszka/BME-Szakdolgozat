@@ -10,6 +10,8 @@ import hu.bme.akos.ruszkabanyai.entity.Project;
 import hu.bme.akos.ruszkabanyai.entity.Task;
 import hu.bme.akos.ruszkabanyai.entity.User;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
+import hu.bme.akos.ruszkabanyai.helper.FoundEntityException;
+import hu.bme.akos.ruszkabanyai.helper.StringConstants;
 import hu.bme.akos.ruszkabanyai.security.IAuthenticationFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,10 +20,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -40,14 +39,17 @@ public class ProjectRestService {
 
     private final IAuthenticationFacade authentication;
 
+    private final MessageService messageService;
+
     public ProjectRestService(ProjectRepository projectRepository, TaskRepository taskRepository,
                               UserRepository userRepository, MeetingRepository meetingRepository,
-                              IAuthenticationFacade authentication) {
+                              IAuthenticationFacade authentication, MessageService messageService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.meetingRepository = meetingRepository;
         this.taskRepository = taskRepository;
         this.authentication = authentication;
+        this.messageService = messageService;
     }
 
     @GetMapping
@@ -69,7 +71,10 @@ public class ProjectRestService {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ARCHITECT')")
-    public ResponseEntity<ProjectDTO> newProject(@RequestBody @Valid ProjectDTO dto) {
+    public ResponseEntity newProject(@RequestBody @Valid ProjectDTO dto) {
+        if (projectRepository.findByName(dto.getName()).isPresent()) {
+            throw new FoundEntityException(StringConstants.PROJECT_FOUND);
+        }
         Project newProject = Project.builder()
                 .name(dto.getName()).description(dto.getDescription()).build();
         newProject.setProjectOwner(getAuthenticatedUser());
@@ -80,15 +85,18 @@ public class ProjectRestService {
             userRepository.save(u);
         });
 
-        return ResponseEntity.ok(projectRepository.save(newProject).entityToDto());
+        projectRepository.save(newProject);
+
+        return messageService.publish(new ArrayList<>(newProject.getEmailsNotification()), StringConstants.PROJECT_NEW, initializeModel(newProject))
+                .orElse(ResponseEntity.ok(newProject.entityToDto()));
     }
 
     @PutMapping("{projectName}")
     @PreAuthorize("@securityService.isOwner(#projectName)")
-    public ResponseEntity<ProjectDTO> updateProject(@PathVariable String projectName, @RequestBody @Valid ProjectDTO dto) {
+    public ResponseEntity updateProject(@PathVariable String projectName, @RequestBody @Valid ProjectDTO dto) {
         if (!(dto.getName().equals(projectName)) && projectRepository.findByName(dto.getName()).isPresent()) {
             log.error(String.format("Projectname : %s already exists.", dto.getName()));
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(StringConstants.PROJECT_FOUND);
         }
         Project project = getProjectByName(projectName);
         project.setName(dto.getName());
@@ -119,7 +127,14 @@ public class ProjectRestService {
             meetings.forEach(m -> m.setProject(project));
             meetingRepository.saveAll(meetings);
         }
-        return ResponseEntity.ok(projectRepository.save(project).entityToDto());
+
+        Project savedProject = projectRepository.save(project);
+
+        return messageService.publish(removableUsers.stream()
+                .map(User::getEmail).collect(Collectors.toList()), StringConstants.PROJECT_REMOVED_USER, initializeModel(project))
+                .orElseGet(() ->
+                        messageService.publish(project.getEmailsNotification(), StringConstants.PROJECT_UPDATE, initializeModel(project))
+                                .orElse(ResponseEntity.ok(savedProject.entityToDto())));
     }
 
     @DeleteMapping("{projectName}")
@@ -145,7 +160,8 @@ public class ProjectRestService {
         taskRepository.deleteAll(tasks);
 
         projectRepository.delete(project);
-        return ResponseEntity.ok().build();
+        return messageService.publish(users.stream().map(User::getEmail).collect(Collectors.toList()), StringConstants.PROJECT_DELETED, initializeModel(project))
+                .orElse(ResponseEntity.ok().build());
     }
 
     @GetMapping("{projectName}/tasks")
@@ -164,5 +180,11 @@ public class ProjectRestService {
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private User getAuthenticatedUser() {
         return userRepository.findByEmail(authentication.getUserName()).get();
+    }
+
+    private Map<String, Object> initializeModel(Project project) {
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("project", project);
+        return model;
     }
 }

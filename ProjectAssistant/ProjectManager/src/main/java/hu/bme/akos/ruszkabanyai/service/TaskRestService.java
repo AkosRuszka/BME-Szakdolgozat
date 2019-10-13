@@ -34,12 +34,15 @@ public class TaskRestService {
 
     private final UserRepository userRepository;
 
+    private final MessageService messageService;
+
     public TaskRestService(TaskRepository taskRepository, ProjectRepository projectRepository,
-                           IAuthenticationFacade authentication, UserRepository userRepository) {
+                           IAuthenticationFacade authentication, UserRepository userRepository, MessageService messageService) {
         this.taskRepository = taskRepository;
         this.projectRepository = projectRepository;
         this.authentication = authentication;
         this.userRepository = userRepository;
+        this.messageService = messageService;
     }
 
     @GetMapping
@@ -96,12 +99,12 @@ public class TaskRestService {
         task.setTaskName(dto.getInfo().getName());
         task.setDeveloper(developer);
 
-        if(!taskName.equals(dto.getInfo().getName())) {
+        if (!taskName.equals(dto.getInfo().getName())) {
             Project project = projectRepository.findByName(task.getProjectName()).get();
             project.getTaskNameSet().remove(taskName);
             project.getTaskNameSet().add(dto.getInfo().getName());
             projectRepository.save(project);
-            if(developer != null)
+            if (developer != null)
                 developer.getTaskNameSet().remove(taskName);
         }
 

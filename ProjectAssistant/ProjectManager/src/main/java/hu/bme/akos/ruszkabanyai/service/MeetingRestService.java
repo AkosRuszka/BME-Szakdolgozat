@@ -12,15 +12,14 @@ import hu.bme.akos.ruszkabanyai.entity.Project;
 import hu.bme.akos.ruszkabanyai.entity.User;
 import hu.bme.akos.ruszkabanyai.entity.helper.EntityMapper;
 import hu.bme.akos.ruszkabanyai.helper.NotFoundEntityException;
+import hu.bme.akos.ruszkabanyai.helper.StringConstants;
 import hu.bme.akos.ruszkabanyai.security.IAuthenticationFacade;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.jms.core.JmsTemplate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.jms.Destination;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,20 +39,17 @@ public class MeetingRestService {
 
     private final MinuteRepository minuteRepository;
 
-    private final JmsTemplate jmsTemplate;
-
-    private final Destination destination;
+    private final MessageService messageService;
 
     public MeetingRestService(MeetingRepository meetingRepository, IAuthenticationFacade authentication,
                               UserRepository userRepository, ProjectRepository projectRepository,
-                              MinuteRepository minuteRepository, JmsTemplate jmsTemplate, Destination destination) {
+                              MinuteRepository minuteRepository, MessageService messageService) {
         this.meetingRepository = meetingRepository;
         this.authentication = authentication;
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.minuteRepository = minuteRepository;
-        this.jmsTemplate = jmsTemplate;
-        this.destination = destination;
+        this.messageService = messageService;
     }
 
     @GetMapping
@@ -75,20 +71,29 @@ public class MeetingRestService {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         try {
-            Project project = projectRepository.findByName(dto.getProjectName()).orElseThrow(() -> new NotFoundEntityException("Nem létezik a projekt"));
+            Project project = projectRepository.findByName(dto.getProjectName()).orElseThrow(
+                    () -> new NotFoundEntityException(StringConstants.PROJECT_NOT_FOUND));
 
             Meeting meeting = Meeting.builder().name(dto.getName()).description(dto.getDescription())
                     .projectName(dto.getProjectName()).location(dto.getLocation()).date(dto.getDate())
-                    .minuteName(dto.getMinuteName()).chairPersonEmail(dto.getChairPersonEmail()).build();
+                    .minuteName(dto.getMinuteName()).build();
             project.getMeetingNameSet().add(meeting.getName());
+
+            User chairPerson = getUser();
+            meeting.setChairPerson(chairPerson);
+            userRepository.save(chairPerson);
+
             List<User> users = userRepository.findAllByEmailIn(new ArrayList<>(dto.getAttendeeEmailSet()));
             users.forEach(u -> {
                 u.getMeetingNameSet().add(meeting.getName());
                 userRepository.save(u);
+                meeting.getAttendeeEmailSet().add(u.getEmail());
             });
             projectRepository.save(project);
             meetingRepository.save(meeting);
-            return ResponseEntity.ok(meeting.entityToDTO());
+
+            return messageService.publish(new ArrayList<>(meeting.getEmailsNotification()),
+                    StringConstants.MEETING_NEW, initializeModel(meeting)).orElse(ResponseEntity.ok(meeting.entityToDTO()));
         } catch (NotFoundEntityException e) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
         }
@@ -98,8 +103,10 @@ public class MeetingRestService {
     @PreAuthorize("@securityService.isInsider(#dto.projectName)")
     public ResponseEntity updateMeeting(@PathVariable String meetingName, @RequestBody MeetingDTO dto) {
         try {
-            Meeting meeting = meetingRepository.findByName(meetingName).orElseThrow(() -> new NotFoundEntityException("Nem található a meeting"));
+            Meeting meeting = meetingRepository.findByName(meetingName).orElseThrow(
+                    () -> new NotFoundEntityException(StringConstants.MEETING_NOT_FOUND));
             Project project;
+            Set<String> removable = new HashSet<>();
             if (!meetingName.equals(dto.getName())) {
                 if (meetingRepository.findByName(dto.getName()).isPresent()) {
                     return ResponseEntity.status(HttpStatus.CONFLICT).build();
@@ -113,7 +120,7 @@ public class MeetingRestService {
                 oldChairPerson.getMeetingNameSet().remove(meetingName);
                 if (!dto.getChairPersonEmail().equals(meeting.getChairPersonEmail())) {
                     newChairPerson = userRepository.findByEmail(dto.getChairPersonEmail()).orElseThrow(() ->
-                            new NoSuchElementException("Nem található a felhasználó"));
+                            new NoSuchElementException(StringConstants.USER_NOT_FOUND));
                     newChairPerson.getMeetingNameSet().add(dto.getName());
                 } else {
                     oldChairPerson.getMeetingNameSet().add(dto.getName());
@@ -121,7 +128,7 @@ public class MeetingRestService {
 
                 Set<String> intersection = new HashSet<>(meeting.getAttendeeEmailSet());
                 intersection.retainAll(dto.getAttendeeEmailSet());
-                Set<String> removable = new HashSet<>(meeting.getAttendeeEmailSet());
+                removable = new HashSet<>(meeting.getAttendeeEmailSet());
                 removable.removeAll(intersection);
 
                 List<User> deletableUsers = userRepository.findAllByEmailIn(new ArrayList<>(removable));
@@ -145,7 +152,11 @@ public class MeetingRestService {
             meeting.setLocation(dto.getLocation());
             meeting.setDate(dto.getDate());
             meetingRepository.save(meeting);
-            return ResponseEntity.ok(meeting.entityToDTO());
+
+            return messageService.publish(new ArrayList<>(removable), StringConstants.MEETING_REMOVED_USER, initializeModel(meeting))
+                    .orElseGet(() ->
+                            messageService.publish(new ArrayList<>(meeting.getEmailsNotification()), StringConstants.MEETING_UPDATED, initializeModel(meeting))
+                                    .orElse(ResponseEntity.ok(meeting.entityToDTO())));
         } catch (NotFoundEntityException e) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
         }
@@ -155,7 +166,7 @@ public class MeetingRestService {
     public ResponseEntity deleteMeeting(@PathVariable String meetingName) {
         try {
             Meeting meeting = meetingRepository.findByName(meetingName).orElseThrow(() ->
-                    new NotFoundEntityException("Nem található ilyen névvel meeting"));
+                    new NotFoundEntityException(StringConstants.MEETING_NOT_FOUND));
             projectRepository.findByName(meeting.getProjectName()).ifPresent(p -> {
                 p.getMeetingNameSet().remove(meetingName);
                 projectRepository.save(p);
@@ -168,9 +179,13 @@ public class MeetingRestService {
                 u.getMeetingNameSet().remove(meetingName);
                 userRepository.save(u);
             });
-            minuteRepository.findAllByTitle(meeting.getMinuteName() == null ? "" : meeting.getMinuteName()).ifPresent(m -> minuteRepository.delete(m));
+            minuteRepository
+                    .findAllByTitle(meeting.getMinuteName() == null ? "" : meeting.getMinuteName())
+                    .ifPresent(minuteRepository::delete);
             meetingRepository.delete(meeting);
-            return ResponseEntity.ok().build();
+
+            return messageService.publish(new ArrayList<>(meeting.getEmailsNotification()), StringConstants.MEETING_DELETED, initializeModel(meeting))
+                    .orElse(ResponseEntity.ok().build());
         } catch (NotFoundEntityException e) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
         }
@@ -186,7 +201,13 @@ public class MeetingRestService {
                 .taskSet(dto.getTaskSet()).build();
         meeting.setMinute(minutes);
         meetingRepository.save(meeting);
-        return ResponseEntity.ok(meeting.entityToDTO());
+        try {
+            return messageService.publish(new ArrayList<>(meeting.getEmailsNotification()), StringConstants.MEETING_ADD_MINUTE, initializeModel(meeting, minutes))
+                    .orElse(ResponseEntity.ok(meeting.entityToDTO()));
+        } catch (NotFoundEntityException e) {
+            log.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage());
+        }
     }
 
     @PostMapping("{meetingName}/{minuteName}")
@@ -194,22 +215,23 @@ public class MeetingRestService {
     public ResponseEntity updateMinute(@PathVariable("meetingName") String meetingName,
                                        @PathVariable("minuteName") String minuteName,
                                        @RequestBody MinutesDTO dto) {
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping("/jms-test/{message}")
-    public ResponseEntity test(@PathVariable String message) {
-        publish(message);
-        log.error("Elküldtünk egy ilyen üzenetet: " + message);
-        return ResponseEntity.ok().build();
-    }
-
-    private void publish(String message) {
-        jmsTemplate.convertAndSend(destination, message);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")
     private User getUser() {
         return userRepository.findByEmail(authentication.getUserName()).get();
+    }
+
+    private HashMap<String, Object> initializeModel(Meeting meeting, Minutes minutes) {
+        HashMap<String, Object> model = initializeModel(meeting);
+        model.put("minute", minutes);
+        return model;
+    }
+
+    private HashMap<String, Object> initializeModel(Meeting meeting) {
+        HashMap<String, Object> model = new HashMap<>();
+        model.put("meeting", meeting);
+        return model;
     }
 }
