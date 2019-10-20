@@ -17,7 +17,7 @@ public class EntityMapper {
                 .ownerName(project.getProjectOwnerEmail())
                 .taskSet(project.getTaskNameSet())
                 .participantSet(project.getParticipantEmailSet())
-                .meetingSet(project.getMeetingNameSet())
+                .meetingMap(project.getMeetingMap())
                 .build();
     }
 

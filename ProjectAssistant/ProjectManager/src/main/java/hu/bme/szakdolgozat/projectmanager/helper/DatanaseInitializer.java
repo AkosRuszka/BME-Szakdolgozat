@@ -37,7 +37,7 @@ public class DatanaseInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (false) {
+        if (true) {
             Role userRole = new Role("ROLE_USER");
 
             User user = User.builder()

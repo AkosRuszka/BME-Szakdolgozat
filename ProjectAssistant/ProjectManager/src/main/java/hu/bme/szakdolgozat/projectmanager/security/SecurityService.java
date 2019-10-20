@@ -1,8 +1,8 @@
 package hu.bme.szakdolgozat.projectmanager.security;
 
-import hu.bme.akos.ruszkabanyai.dao.MeetingRepository;
-import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
-import hu.bme.akos.ruszkabanyai.dao.TaskRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.MeetingRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.ProjectRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.TaskRepository;
 import hu.bme.szakdolgozat.projectmanager.entity.User;
 import org.springframework.stereotype.Service;
 

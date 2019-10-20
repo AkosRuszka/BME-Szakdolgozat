@@ -124,7 +124,7 @@ public class ProjectRestService {
             task.forEach(t -> t.setProject(project));
             taskRepository.saveAll(task);
 
-            List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameSet()), Pageable.unpaged());
+            List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingMap().keySet()), Pageable.unpaged());
             meetings.forEach(m -> m.setProject(project));
             meetingRepository.saveAll(meetings);
         }
@@ -147,7 +147,7 @@ public class ProjectRestService {
         users.forEach(user -> {
             user.getProjectNameSet().remove(project.getName());
             user.getTaskNameSet().removeAll(project.getTaskNameSet());
-            user.getMeetingNameSet().removeAll(project.getMeetingNameSet());
+            user.getMeetingNameSet().removeAll(project.getMeetingMap().keySet());
         });
         userRepository.saveAll(users);
 
@@ -155,7 +155,7 @@ public class ProjectRestService {
         userOwner.getProjectNameSet().remove(projectName);
         userRepository.save(userOwner);
 
-        List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameSet()), Pageable.unpaged());
+        List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingMap().keySet()), Pageable.unpaged());
         meetingRepository.deleteAll(meetings);
         List<Task> tasks = taskRepository.findAllByInfoNameIn(new ArrayList<>(project.getTaskNameSet()), Pageable.unpaged());
         taskRepository.deleteAll(tasks);

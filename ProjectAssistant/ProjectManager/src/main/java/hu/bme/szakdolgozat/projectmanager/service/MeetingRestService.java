@@ -15,7 +15,11 @@ import hu.bme.szakdolgozat.projectmanager.helper.NotFoundEntityException;
 import hu.bme.szakdolgozat.projectmanager.helper.StringConstants;
 import hu.bme.szakdolgozat.projectmanager.security.IAuthenticationFacade;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -55,7 +59,10 @@ public class MeetingRestService {
 
     @GetMapping
     public ResponseEntity getMeetings(Pageable pageable) {
-        return ResponseEntity.ok(meetingRepository.findAllByNameIn(new ArrayList<>(getUser().getMeetingNameSet()), pageable).stream()
+        Pageable pageable1 = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by("date").descending());
+        List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(getUser().getMeetingNameSet()), pageable1);
+        meetings.sort(Comparator.comparing(Meeting::getDate));
+        return ResponseEntity.ok(meetings.stream()
                 .map(EntityMapper::entityToDTO).collect(Collectors.toList()));
     }
 
@@ -78,7 +85,7 @@ public class MeetingRestService {
             Meeting meeting = Meeting.builder().name(dto.getName()).description(dto.getDescription())
                     .projectName(dto.getProjectName()).location(dto.getLocation()).date(dto.getDate())
                     .minuteName(dto.getMinuteName()).build();
-            project.getMeetingNameSet().add(meeting.getName());
+            project.getMeetingMap().put(meeting.getName(), meeting.getDate());
 
             User chairPerson = getUser();
             meeting.setChairPerson(chairPerson);
@@ -113,8 +120,8 @@ public class MeetingRestService {
                     return ResponseEntity.status(HttpStatus.CONFLICT).build();
                 }
                 project = projectRepository.findByName(meeting.getProjectName()).get();
-                project.getMeetingNameSet().remove(meetingName);
-                project.getMeetingNameSet().add(dto.getName());
+                project.getMeetingMap().remove(meetingName);
+                project.getMeetingMap().put(dto.getName(), dto.getDate());
 
                 User newChairPerson = null;
                 User oldChairPerson = userRepository.findByEmail(meeting.getChairPersonEmail()).get();
@@ -169,7 +176,7 @@ public class MeetingRestService {
             Meeting meeting = meetingRepository.findByName(meetingName).orElseThrow(() ->
                     new NotFoundEntityException(StringConstants.MEETING_NOT_FOUND));
             projectRepository.findByName(meeting.getProjectName()).ifPresent(p -> {
-                p.getMeetingNameSet().remove(meetingName);
+                p.getMeetingMap().remove(meetingName);
                 projectRepository.save(p);
             });
             userRepository.findByEmail(meeting.getChairPersonEmail()).ifPresent(u -> {

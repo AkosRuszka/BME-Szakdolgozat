@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.Set;
 
 @Builder
@@ -18,7 +20,7 @@ public class ProjectDTO {
     private String name;
     @NotBlank
     private String description;
-    private Set<String> meetingSet;
+    private Map<String, LocalDateTime> meetingMap;
     private Set<String> participantSet;
     @NotNull
     private String ownerName;

@@ -10,10 +10,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -35,7 +33,7 @@ public class Project extends BaseEntity implements UpdateNotifier {
     private Boolean active = Boolean.TRUE;
 
     @Builder.Default
-    private Set<String> meetingNameSet = new HashSet<>();
+    private Map<String, LocalDateTime> meetingMap = new HashMap<>();
 
     @Builder.Default
     private Set<String> participantEmailSet = new HashSet<>();
@@ -50,8 +48,8 @@ public class Project extends BaseEntity implements UpdateNotifier {
         user.addProjectListThanOwner(this);
     }
 
-    public void setMeetingNameSet(Set<Meeting> meetings) {
-        this.meetingNameSet = meetings.stream().map(Meeting::getName).collect(Collectors.toSet());
+    public void setMeetingMap(Set<Meeting> meetings) {
+        this.meetingMap = meetings.stream().collect(Collectors.toMap(Meeting::getName, Meeting::getDate));
         meetings.forEach(meeting -> {
             if (meeting.getProjectName() == null) meeting.setProject(this);
         });
@@ -82,7 +80,7 @@ public class Project extends BaseEntity implements UpdateNotifier {
         return Project.builder()
                 .name(dto.getName())
                 .description(dto.getDescription())
-                .meetingNameSet(dto.getMeetingSet())
+                .meetingMap(dto.getMeetingMap())
                 .participantEmailSet(dto.getParticipantSet())
                 .projectOwnerEmail(dto.getOwnerName())
                 .taskNameSet(dto.getTaskSet())

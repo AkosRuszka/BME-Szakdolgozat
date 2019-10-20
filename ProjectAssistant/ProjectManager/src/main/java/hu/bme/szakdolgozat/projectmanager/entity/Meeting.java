@@ -53,7 +53,7 @@ public class Meeting extends BaseEntity implements UpdateNotifier {
 
     public void setProject(Project project) {
         this.projectName = project.getName();
-        project.getMeetingNameSet().add(this.name);
+        project.getMeetingMap().put(this.name, this.date);
     }
 
     public void setMinute(Minutes minute) {
