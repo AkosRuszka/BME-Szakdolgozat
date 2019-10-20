@@ -1,8 +1,8 @@
 package hu.bme.szakdolgozat.projectmanager.service;
 
-import hu.bme.akos.ruszkabanyai.dao.MeetingRepository;
-import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
-import hu.bme.akos.ruszkabanyai.dao.TaskRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.MeetingRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.ProjectRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.TaskRepository;
 import hu.bme.szakdolgozat.projectmanager.dao.UserRepository;
 import hu.bme.szakdolgozat.projectmanager.dto.ProjectDTO;
 import hu.bme.szakdolgozat.projectmanager.entity.Meeting;
@@ -124,7 +124,7 @@ public class ProjectRestService {
             task.forEach(t -> t.setProject(project));
             taskRepository.saveAll(task);
 
-            List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameMap()), Pageable.unpaged());
+            List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameSet()), Pageable.unpaged());
             meetings.forEach(m -> m.setProject(project));
             meetingRepository.saveAll(meetings);
         }
@@ -147,7 +147,7 @@ public class ProjectRestService {
         users.forEach(user -> {
             user.getProjectNameSet().remove(project.getName());
             user.getTaskNameSet().removeAll(project.getTaskNameSet());
-            user.getMeetingNameSet().removeAll(project.getMeetingNameMap());
+            user.getMeetingNameSet().removeAll(project.getMeetingNameSet());
         });
         userRepository.saveAll(users);
 
@@ -155,7 +155,7 @@ public class ProjectRestService {
         userOwner.getProjectNameSet().remove(projectName);
         userRepository.save(userOwner);
 
-        List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameMap()), Pageable.unpaged());
+        List<Meeting> meetings = meetingRepository.findAllByNameIn(new ArrayList<>(project.getMeetingNameSet()), Pageable.unpaged());
         meetingRepository.deleteAll(meetings);
         List<Task> tasks = taskRepository.findAllByInfoNameIn(new ArrayList<>(project.getTaskNameSet()), Pageable.unpaged());
         taskRepository.deleteAll(tasks);

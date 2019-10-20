@@ -1,7 +1,5 @@
 package hu.bme.szakdolgozat.projectmanager.entity.helper;
 
-import hu.bme.akos.ruszkabanyai.dto.*;
-import hu.bme.akos.ruszkabanyai.entity.*;
 import hu.bme.szakdolgozat.projectmanager.dto.*;
 import hu.bme.szakdolgozat.projectmanager.entity.*;
 
@@ -9,7 +7,8 @@ import java.util.stream.Collectors;
 
 public class EntityMapper {
 
-    private EntityMapper() {}
+    private EntityMapper() {
+    }
 
     public static ProjectDTO entityToDTO(final Project project) {
         return ProjectDTO.builder()

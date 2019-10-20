@@ -1,7 +1,7 @@
 package hu.bme.szakdolgozat.projectmanager.service;
 
-import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
-import hu.bme.akos.ruszkabanyai.dao.TaskRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.ProjectRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.TaskRepository;
 import hu.bme.szakdolgozat.projectmanager.dao.UserRepository;
 import hu.bme.szakdolgozat.projectmanager.dto.TaskDTO;
 import hu.bme.szakdolgozat.projectmanager.entity.Project;

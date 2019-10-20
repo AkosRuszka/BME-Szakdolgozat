@@ -1,8 +1,8 @@
 package hu.bme.szakdolgozat.projectmanager.service;
 
-import hu.bme.akos.ruszkabanyai.dao.MeetingRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.MeetingRepository;
 import hu.bme.szakdolgozat.projectmanager.dao.MinuteRepository;
-import hu.bme.akos.ruszkabanyai.dao.ProjectRepository;
+import hu.bme.szakdolgozat.projectmanager.dao.ProjectRepository;
 import hu.bme.szakdolgozat.projectmanager.dao.UserRepository;
 import hu.bme.szakdolgozat.projectmanager.dto.MeetingDTO;
 import hu.bme.szakdolgozat.projectmanager.dto.MinutesDTO;
@@ -78,7 +78,7 @@ public class MeetingRestService {
             Meeting meeting = Meeting.builder().name(dto.getName()).description(dto.getDescription())
                     .projectName(dto.getProjectName()).location(dto.getLocation()).date(dto.getDate())
                     .minuteName(dto.getMinuteName()).build();
-            project.getMeetingNameMap().add(meeting.getName());
+            project.getMeetingNameSet().add(meeting.getName());
 
             User chairPerson = getUser();
             meeting.setChairPerson(chairPerson);
@@ -113,8 +113,8 @@ public class MeetingRestService {
                     return ResponseEntity.status(HttpStatus.CONFLICT).build();
                 }
                 project = projectRepository.findByName(meeting.getProjectName()).get();
-                project.getMeetingNameMap().remove(meetingName);
-                project.getMeetingNameMap().add(dto.getName());
+                project.getMeetingNameSet().remove(meetingName);
+                project.getMeetingNameSet().add(dto.getName());
 
                 User newChairPerson = null;
                 User oldChairPerson = userRepository.findByEmail(meeting.getChairPersonEmail()).get();
@@ -169,7 +169,7 @@ public class MeetingRestService {
             Meeting meeting = meetingRepository.findByName(meetingName).orElseThrow(() ->
                     new NotFoundEntityException(StringConstants.MEETING_NOT_FOUND));
             projectRepository.findByName(meeting.getProjectName()).ifPresent(p -> {
-                p.getMeetingNameMap().remove(meetingName);
+                p.getMeetingNameSet().remove(meetingName);
                 projectRepository.save(p);
             });
             userRepository.findByEmail(meeting.getChairPersonEmail()).ifPresent(u -> {

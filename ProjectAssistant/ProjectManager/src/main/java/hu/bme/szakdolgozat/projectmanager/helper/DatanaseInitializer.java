@@ -1,12 +1,8 @@
 package hu.bme.szakdolgozat.projectmanager.helper;
 
-import hu.bme.akos.ruszkabanyai.dao.*;
-import hu.bme.akos.ruszkabanyai.entity.*;
+import hu.bme.szakdolgozat.projectmanager.dao.*;
 import hu.bme.szakdolgozat.projectmanager.entity.*;
 import hu.bme.szakdolgozat.projectmanager.entity.helper.TaskDescription;
-import hu.bme.szakdolgozat.projectmanager.dao.MailMessageRepository;
-import hu.bme.szakdolgozat.projectmanager.dao.RoleRepository;
-import hu.bme.szakdolgozat.projectmanager.dao.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
