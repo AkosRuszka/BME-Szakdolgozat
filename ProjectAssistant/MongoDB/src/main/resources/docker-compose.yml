@@ -6,11 +6,6 @@ services:
     restart: always
     container_name:  project_assistant
     hostname: project_assistant
-#    environment:
-#      - MONGO_INITDB_ROOT_USERNAME=root
-#      - MONGO_INITDB_ROOT_PASSWORD=password
-#      - MONGO_USERDB_ADMIN_USERNAME=springboot
-#      - MONGO_USERDB_ADMIN_PASSWORD=password123
     ports:
       - "27017-27019:27017-27019"
 

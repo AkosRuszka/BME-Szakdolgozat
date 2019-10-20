@@ -23,6 +23,7 @@
         <module>MessageProvider</module>
         <module>MongoDB</module>
         <module>ActiveMQ</module>
+        <module>AuthenticationDB</module>
     </modules>
 
     <properties>
@@ -30,6 +31,8 @@
         <hibernate.version>5.4.5.Final</hibernate.version>
         <lombok.version>1.18.10</lombok.version>
         <jsonwebtoken.jjwt.version>0.9.1</jsonwebtoken.jjwt.version>
+        <freemarker.version>2.1.8.RELEASE</freemarker.version>
+        <oauth.client.version>5.2.0.RELEASE</oauth.client.version>
         <java.version>11</java.version>
 
         <profile>test</profile>
@@ -40,6 +43,11 @@
         <mongo.root.password>example</mongo.root.password>
         <mongo.username>springboot</mongo.username>
         <mongo.password>password123</mongo.password>
+
+        <authentication.database.host>localhost</authentication.database.host>
+        <authentication.database.name>projectAssistant</authentication.database.name>
+        <authentication.database.port>27020</authentication.database.port>
+        <authentication.database.uri>mongodb://localhost:27020/projectAssistant</authentication.database.uri>
 
         <activemq.queue.name>projectAssistant</activemq.queue.name>
         <activemq.broker.url>tcp://localhost:61616</activemq.broker.url>
@@ -55,6 +63,13 @@
         <mail.username>spring.onlabor@gmail.com</mail.username>
         <mail.password>SpringOnlabor123</mail.password>
         <email.enabled>true</email.enabled>
+
+        <google.cliendId>30072480563-b2ej91p8rhsr3mjrtgbhogm73u3rlrmb.apps.googleusercontent.com</google.cliendId>
+        <google.client.secret>mlcdz29Cu43WTj_RcZfZXCWl</google.client.secret>
+        <oauth.redirect>localhost:9004/oauth2/callback/{registrationId}</oauth.redirect>
+
+        <tokenSecret>926D96C90030DD58429D2751AC1BDBBC</tokenSecret>
+        <tokenExpirationMsec>864000000</tokenExpirationMsec>
     </properties>
 
     <dependencyManagement>
@@ -77,9 +92,14 @@
                 <version>${spring.boot.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-oauth2-client</artifactId>
+                <version>${oauth.client.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-freemarker</artifactId>
-                <version>1.5.6.RELEASE</version>
+                <version>${freemarker.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.boot</groupId>
