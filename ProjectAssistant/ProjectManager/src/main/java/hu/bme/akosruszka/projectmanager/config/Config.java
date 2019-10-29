@@ -1,4 +1,4 @@
-package hu.bme.akosruszka.projectmanager.helper;
+package hu.bme.akosruszka.projectmanager.config;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;

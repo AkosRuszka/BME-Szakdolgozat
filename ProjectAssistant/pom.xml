@@ -32,7 +32,7 @@
         <lombok.version>1.18.10</lombok.version>
         <jsonwebtoken.jjwt.version>0.9.1</jsonwebtoken.jjwt.version>
         <freemarker.version>2.1.8.RELEASE</freemarker.version>
-        <oauth.client.version>5.2.0.RELEASE</oauth.client.version>
+        <oauth.client.version>5.1.6.RELEASE</oauth.client.version>
         <java.version>11</java.version>
 
         <profile>test</profile>
@@ -66,7 +66,7 @@
 
         <google.cliendId>30072480563-b2ej91p8rhsr3mjrtgbhogm73u3rlrmb.apps.googleusercontent.com</google.cliendId>
         <google.client.secret>mlcdz29Cu43WTj_RcZfZXCWl</google.client.secret>
-        <oauth.redirect>localhost:9004/oauth2/callback/{registrationId}</oauth.redirect>
+        <oauth.redirect>http://localhost:9200/oauth2/callback/{registrationId}</oauth.redirect>
 
         <tokenSecret>926D96C90030DD58429D2751AC1BDBBC</tokenSecret>
         <tokenExpirationMsec>864000000</tokenExpirationMsec>
@@ -132,6 +132,27 @@
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
                 <version>${jsonwebtoken.jjwt.version}</version>
+            </dependency>
+            <!-- Java 11 not contains xml api -->
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>2.3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-core</artifactId>
+                <version>2.3.0.1</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.xml.bind</groupId>
+                <artifactId>jaxb-impl</artifactId>
+                <version>2.3.2</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>1.1.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

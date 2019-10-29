@@ -19,9 +19,9 @@ public class DatabaseInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
         User user = User.builder()
                 .email("akosruszka@gmail.com")
-                .emailVerified(true)
+//                .emailVerified(true)
                 .innerEmail("test@gmail.com")
-                .providerId("1")
+//                .providerId("1")
                 .build();
         userRepository.save(user);
     }

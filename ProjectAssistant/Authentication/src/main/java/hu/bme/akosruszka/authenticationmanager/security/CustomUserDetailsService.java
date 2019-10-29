@@ -2,7 +2,6 @@ package hu.bme.akosruszka.authenticationmanager.security;
 
 import hu.bme.akosruszka.authenticationmanager.dao.UserRepository;
 import hu.bme.akosruszka.authenticationmanager.entity.User;
-import hu.bme.akosruszka.authenticationmanager.helper.UserPrincipal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

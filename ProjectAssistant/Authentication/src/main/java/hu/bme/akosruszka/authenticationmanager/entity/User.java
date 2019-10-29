@@ -19,10 +19,4 @@ public class User {
     private String name;
 
     private String innerEmail;
-
-    private String providerId;
-
-    private AuthProvider provider;
-
-    private Boolean emailVerified = false;
 }

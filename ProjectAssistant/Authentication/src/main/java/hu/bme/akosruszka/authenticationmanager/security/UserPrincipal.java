@@ -1,4 +1,4 @@
-package hu.bme.akosruszka.authenticationmanager.helper;
+package hu.bme.akosruszka.authenticationmanager.security;
 
 import hu.bme.akosruszka.authenticationmanager.entity.User;
 import org.springframework.security.core.GrantedAuthority;

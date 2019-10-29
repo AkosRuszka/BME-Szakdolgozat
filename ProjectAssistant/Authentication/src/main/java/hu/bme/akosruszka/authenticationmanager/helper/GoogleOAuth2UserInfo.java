@@ -1,5 +1,7 @@
 package hu.bme.akosruszka.authenticationmanager.helper;
 
+import hu.bme.akosruszka.authenticationmanager.security.OAuth2UserInfo;
+
 import java.util.Map;
 
 public class GoogleOAuth2UserInfo extends OAuth2UserInfo {

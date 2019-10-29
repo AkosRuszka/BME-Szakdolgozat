@@ -1,4 +1,4 @@
-package hu.bme.akosruszka.authenticationmanager.helper;
+package hu.bme.akosruszka.authenticationmanager.security;
 
 import java.util.Map;
 

@@ -1,9 +1,11 @@
-package hu.bme.akosruszka.projectmanager.security;
+package hu.bme.akosruszka.projectmanager.service;
 
 import hu.bme.akosruszka.projectmanager.dao.MeetingRepository;
 import hu.bme.akosruszka.projectmanager.dao.ProjectRepository;
 import hu.bme.akosruszka.projectmanager.dao.TaskRepository;
 import hu.bme.akosruszka.projectmanager.entity.User;
+import hu.bme.akosruszka.projectmanager.security.IAuthenticationFacade;
+import hu.bme.akosruszka.projectmanager.security.UserPrincipal;
 import org.springframework.stereotype.Service;
 
 import javax.validation.constraints.NotBlank;

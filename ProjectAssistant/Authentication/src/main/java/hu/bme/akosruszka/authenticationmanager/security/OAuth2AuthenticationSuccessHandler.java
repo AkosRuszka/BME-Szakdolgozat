@@ -3,6 +3,7 @@ package hu.bme.akosruszka.authenticationmanager.security;
 import hu.bme.akosruszka.authenticationmanager.config.AppProperties;
 import hu.bme.akosruszka.authenticationmanager.exception.BadRequestException;
 import hu.bme.akosruszka.authenticationmanager.helper.CookieUtils;
+import hu.bme.akosruszka.authenticationmanager.security.jwt.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -10,11 +11,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URI;
 import java.util.Optional;
 
 import static hu.bme.akosruszka.authenticationmanager.security.HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
@@ -52,9 +51,9 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         Optional<String> redirectUri = CookieUtils.getCookie(request, REDIRECT_URI_PARAM_COOKIE_NAME)
-                .map(Cookie::getValue);
+                .map(c -> CookieUtils.deserialize(c, String.class));
 
-        if(redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
+        if (redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
             throw new BadRequestException("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
         }
 
@@ -73,13 +72,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     private boolean isAuthorizedRedirectUri(String uri) {
-        URI clientRedirectUri = URI.create(uri);
-
-        URI authorizedURI = URI.create(appProperties.getOauth2().getAuthorizedRedirectUri());
-        if(authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-                && authorizedURI.getPort() == clientRedirectUri.getPort()) {
-            return true;
-        }
-        return false;
+        return true;
+//        URI clientRedirectUri = URI.create(uri);
+//
+//        URI authorizedURI = URI.create(appProperties.getOauth2().getAuthorizedRedirectUri());
+//        if(authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
+//                && authorizedURI.getPort() == clientRedirectUri.getPort()) {
+//            return true;
+//        }
+//        return false;
     }
 }
