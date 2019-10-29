@@ -24,6 +24,7 @@
         <module>MongoDB</module>
         <module>ActiveMQ</module>
         <module>AuthenticationDB</module>
+        <module>Jenkins</module>
     </modules>
 
     <properties>
