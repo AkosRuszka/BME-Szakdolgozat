@@ -1,0 +1,18 @@
+<p>project works!</p>
+
+<ng-container *ngIf="project != null">
+  <div>
+    <p>{{project.name}}</p>
+    <p>{{project.description}}</p>
+    <div *ngFor="let meeting of project.meetingSet">
+      <p>{{meeting}}</p>
+    </div>
+    <div *ngFor="let participant of project.participantSet">
+      <p>{{participant}}</p>
+    </div>
+    <div *ngFor="let task of project.taskSet">
+      <p>{{task}}</p>
+    </div>
+    <p>{{project.ownerName}}</p>
+  </div>
+</ng-container>

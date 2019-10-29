@@ -1,0 +1,29 @@
+.cards {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  .card {
+    width: 49.5%;
+    margin-top: 10px;
+    .card-title {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      .btn{
+        display: inline;
+      }
+    }
+    td{
+      cursor: pointer;
+    }
+  }
+}
+.card {
+  display: flex;
+  flex-direction: row;
+  height: min-content;
+  width: 49.5%;
+  img {
+    max-width: 40%;
+  }
+}

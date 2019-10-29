@@ -1,0 +1,14 @@
+version: '2'
+services:
+
+  apache:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: projectAssistant_frontend
+    hostname: projectAssistant_frontend
+    ports:
+      - '8080:80'
+    volumes:
+      - ./build/projectAssistant:/usr/local/apache2/htdocs:ro
+
