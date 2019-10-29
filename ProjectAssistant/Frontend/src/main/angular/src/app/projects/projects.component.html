@@ -1,0 +1,115 @@
+  <div class="projects">
+  <div class="card">
+    <div class="card-body">
+      <div class="card-title">
+        <div>
+          <h5>Projects</h5>
+        </div>
+        <div><a class="button btn btn-primary" data-target="#newProjectModal" data-toggle="modal">New
+          project</a></div>
+      </div>
+      <table mdbTable class="table" hover="true">
+        <thead>
+        <tr>
+          <th scope="col"><b>Name</b></th>
+          <th scope="col"><b>Owner</b></th>
+          <th scope="col" style="width: 10%;"><b>Details</b></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr mdbTableCol *ngFor="let project of projects">
+          <td><a routerLink='/project/{{project.name}}'>{{project.name}}</a></td>
+          <td routerLink='/user/{{project.ownerName}}'>{{project.ownerName}}</td>
+          <td class="text-center" (click)="showProjectDetails(project.name)">
+            <mdb-icon fas icon="angle-right" size="lg"></mdb-icon>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <ng-container *ngIf="selectedProject!=null">
+    <div class="card details" routerLink='/project/{{selectedProject.name}}'>
+      <div class="card-body">
+        <div class="card-title">
+          <div>
+            <h3>
+              <b>{{selectedProject.name}}</b>
+            </h3>
+          </div>
+        </div>
+        <div class="card-subtitle">
+          <p><b>Owner:</b></p>
+          <p>{{selectedProject.ownerName}}</p>
+        </div>
+        <div class="card-text">
+          <p><b>Leírás:</b></p>
+          <p>{{selectedProject.description}}</p><br>
+          <p><b>Meetingek:</b></p>
+          <div *ngFor="let meeting of selectedProject.meetingMap | keyvalue">
+            <p>{{meeting.key}} - {{meeting.value}}</p>
+          </div><br>
+          <p><b>Feladatok:</b></p>
+          <div *ngFor="let task of selectedProject.taskSet">
+            <p>{{task}}</p>
+          </div><br>
+          <p><b>Résztvevők:</b></p>
+          <div *ngFor="let user of selectedProject.participantSet">
+            <p>{{user}}</p>
+          </div><br>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
+
+
+<div class="modal fade" id="newProjectModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="newProjecctModalLabel">New project</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id='newProjecctModalBody'>
+        <form [formGroup]='newProjectForm' (ngSubmit)='newProject()' class="text-center p-5">
+          <!-- Name -->
+          <input type="text" id="projectName" formControlName="projectName" class="form-control mb-4"
+                 placeholder="Project Name">
+
+          <!-- Email -->
+          <input type="email" id="projectOwner" formControlName="projectOwner" class="form-control mb-4"
+                 placeholder="E-mail">
+
+          <!-- Subject -->
+          <!-- <label>Subject</label>
+          <select class="browser-default custom-select mb-4">
+              <option value="" disabled>Choose option</option>
+              <option value="1" selected>Feedback</option>
+              <option value="2">Report a bug</option>
+              <option value="3">Feature request</option>
+              <option value="4">Feature request</option>
+          </select> -->
+
+          <!-- Message -->
+          <!-- <div class="form-group">
+              <textarea class="form-control rounded-0" id="exampleFormControlTextarea2" rows="3"
+                  placeholder="Message"></textarea>
+          </div> -->
+
+        </form>
+
+      </div>
+      <div class="modal-footer">
+        <button mdbBtn type="button" color="danger" class="btn btn-space" data-dismiss="modal">Cancel</button>
+        <button mdbBtn type="submit" color="success" (click)="newProject()" data-dismiss="modal"
+                class="btn btn-space">Create
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

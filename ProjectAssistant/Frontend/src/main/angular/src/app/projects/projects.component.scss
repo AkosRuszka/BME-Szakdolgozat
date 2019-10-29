@@ -1,0 +1,26 @@
+.card {
+  width: 50%;
+  margin: 5px;
+  .card-title {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    .btn {
+      display: inline;
+    }
+  }
+}
+mdb-icon {
+  align-self: right;
+  cursor: pointer;
+}
+.projects {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.details {
+  position: sticky;
+  top: 60px;
+  height: min-content;
+}
