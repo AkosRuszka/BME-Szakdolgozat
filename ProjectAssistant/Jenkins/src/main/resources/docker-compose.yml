@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+
+  jenkins:
+    hostname: jenkins
+    container_name: jenkins
+    build:
+      dockerfile: Dockerfile
+      context: .
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - ./executors.groovy:/usr/share/jenkins/ref/init.groovy.d/executors.groovy
+
