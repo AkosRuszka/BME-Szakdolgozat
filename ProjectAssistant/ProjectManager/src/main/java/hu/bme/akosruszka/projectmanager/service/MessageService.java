@@ -12,7 +12,7 @@ import hu.bme.akosruszka.projectmanager.entity.User;
 import hu.bme.akosruszka.projectmanager.entity.helper.Message;
 import hu.bme.akosruszka.projectmanager.helper.FoundEntityException;
 import hu.bme.akosruszka.projectmanager.helper.NotFoundEntityException;
-import hu.bme.akosruszka.projectmanager.helper.StringConstants;
+import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

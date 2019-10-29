@@ -1,4 +1,4 @@
-package hu.bme.akosruszka.projectmanager.service;
+package hu.bme.akosruszka.projectmanager.service.rest;
 
 import hu.bme.akosruszka.projectmanager.dao.MeetingRepository;
 import hu.bme.akosruszka.projectmanager.dao.MinuteRepository;
@@ -12,8 +12,9 @@ import hu.bme.akosruszka.projectmanager.entity.Project;
 import hu.bme.akosruszka.projectmanager.entity.User;
 import hu.bme.akosruszka.projectmanager.entity.helper.EntityMapper;
 import hu.bme.akosruszka.projectmanager.helper.NotFoundEntityException;
-import hu.bme.akosruszka.projectmanager.helper.StringConstants;
+import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.security.IAuthenticationFacade;
+import hu.bme.akosruszka.projectmanager.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

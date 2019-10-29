@@ -1,4 +1,4 @@
-package hu.bme.akosruszka.projectmanager.service;
+package hu.bme.akosruszka.projectmanager.service.rest;
 
 import hu.bme.akosruszka.projectmanager.dao.ProjectRepository;
 import hu.bme.akosruszka.projectmanager.dao.TaskRepository;
@@ -9,6 +9,7 @@ import hu.bme.akosruszka.projectmanager.entity.Task;
 import hu.bme.akosruszka.projectmanager.entity.User;
 import hu.bme.akosruszka.projectmanager.helper.NotFoundEntityException;
 import hu.bme.akosruszka.projectmanager.security.IAuthenticationFacade;
+import hu.bme.akosruszka.projectmanager.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,5 +1,6 @@
 package hu.bme.akosruszka.projectmanager.helper;
 
+import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.dao.*;
 import hu.bme.akosruszka.projectmanager.entity.*;
 import hu.bme.akosruszka.projectmanager.entity.helper.TaskDescription;
