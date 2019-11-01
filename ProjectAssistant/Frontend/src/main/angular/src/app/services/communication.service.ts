@@ -51,35 +51,47 @@ export class CommunicationService {
   }
 
   getTasksForProject(projectName: string) : Observable<Task[]>{
-    return this.http.get<Task[]>(this.projectURL + '/task', this.httpOptions);
+    return this.http.get<Task[]>(this.projectURL + '/' + projectName + '/tasks', this.httpOptions);
   }
 
   getMeetings(pageSize: number, pageNumber: number) : Observable<Meeting[]> {
     return this.http.get<Meeting[]>(this.meetingURL + this.createPagePath(pageSize, pageNumber), this.httpOptions);
   }
 
+  getMeetingsFromProject(projectName : string) : Observable<Meeting[]> {
+    return this.http.get<Meeting[]>(this.meetingURL + '/project/' + projectName, this.httpOptions);
+  }
+
   getMeeting(name: string) : Observable<Meeting> {
     return this.http.get<Meeting>(this.meetingURL + '/' +name, this.httpOptions);
   }
 
-  addNewMeeting(newMeeting: Meeting) {
-    this.http.post(this.meetingURL, newMeeting ,this.httpOptions);
+  checkMeetingName(name: string): Observable<boolean> {
+    return this.http.get<boolean>(this.meetingURL + '/check?name=' + name , this.httpOptions);
   }
 
-  updateMeeting(meetingName: string, meetingDto : Meeting) {
-    this.http.put(this.meetingURL + '/' + meetingName, meetingDto, this.httpOptions);
+  addNewMeeting(newMeeting: Meeting): Observable<any> {
+    return this.http.post(this.meetingURL, newMeeting ,this.httpOptions);
+  }
+
+  updateMeeting(meetingName: string, meetingDto : Meeting): Observable<any> {
+    return this.http.put<any>(this.meetingURL + '/' + meetingName, meetingDto, this.httpOptions);
   }
 
   deleteMeeting(meetingName: string) {
     this.http.delete(this.meetingURL + '/' + meetingName, this.httpOptions);
   }
 
-  addMinute(meetingName: string, minutes: Minutes) {
-    this.http.post(this.meetingURL + '/' + meetingName, minutes, this.httpOptions);
+  addMinute(meetingName: string, minutes: Minutes): Observable<any> {
+    return this.http.post(this.meetingURL + '/' + meetingName, minutes, this.httpOptions);
   }
 
   updateMinute(meetingName: string, minutes: Minutes) {
     this.http.post(this.meetingURL + '/' + meetingName + '/' + minutes.title, minutes, this.httpOptions);
+  }
+
+  getMinute(meetingName: string) : Observable<Minutes> {
+    return this.http.get<Minutes>(this.meetingURL + '/' + meetingName + '/minute', this.httpOptions);
   }
 
   getTasks(pageSize: number, pageNumber: number) : Observable<Task[]> {
@@ -104,6 +116,10 @@ export class CommunicationService {
 
   getRegisteredClients() : Observable<Map<string, string>> {
     return this.http.get<Map<string, string>>(this.url + '/authentication/getOAuthClients', this.httpOptions);
+  }
+
+  existUser(email: string): Observable<boolean> {
+    return this.http.get<boolean>(this.userURL + "/checkUser?email=" + email, this.httpOptions);
   }
 
   private createPagePath(pageSize: number, pageNumber: number): string {

@@ -1,16 +1,18 @@
   import { Component, OnInit } from '@angular/core';
   import {CommunicationService} from "../services/communication.service";
-  import {Project} from "../models/dtos";
+  import {Meeting, Project, Task} from "../models/dtos";
   import {ActivatedRoute} from "@angular/router";
 
 @Component({
   selector: 'app-project',
   templateUrl: './project.component.html',
-  styleUrls: ['./project.component.css']
+  styleUrls: ['./project.component.scss']
 })
 export class ProjectComponent implements OnInit {
 
   project: Project = null;
+  tasks: Task[] = [];
+  meetings: Meeting[] = [];
   newProject: Project = null;
 
   constructor(private service: CommunicationService, private route: ActivatedRoute) { }
@@ -19,9 +21,19 @@ export class ProjectComponent implements OnInit {
     this.service.getProject(this.route.snapshot.paramMap.get('projectName')).subscribe(
       (result: Project) => {
         this.project = result;
+        this.service.getTasksForProject(this.project.name).subscribe(
+          result => {
+            this.tasks = result;
+          }
+        );
+        this.service.getMeetingsFromProject(this.project.name).subscribe(
+          result => {
+            this.meetings = result;
+          }
+        )
       },
       error => {
-        console.log("Brühühü" + error);
+        console.log("Hiba történt a projekt lekérdezésekor." + error);
       }
     )
   }

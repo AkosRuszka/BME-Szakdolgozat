@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="row">
+    <table mdbTable striped="true">
+      <thead>
+      <p>
+      <h4>Meetings</h4>
+      <tr>
+        <th *ngFor="let head of headElements" scope="col">{{ head }}</th>
+      </tr>
+      </thead>
+      <tbody mdbTableCol *ngFor="let el of meetings">
+      <tr>
+        <td scope="row">
+          <button
+            type="button"
+            mdbBtn
+            color="danger"
+            class="master-button"
+            mdbWavesEffect
+            *ngIf="el.collapsed"
+            (click)="el.collapsed = !el.collapsed; getUsers(el)">
+            <mdb-icon fas icon="angle-down"></mdb-icon>
+          </button>
+          <button
+            type="button"
+            mdbBtn
+            color="success"
+            class="master-button"
+            mdbWavesEffect
+            *ngIf="!el.collapsed"
+            (click)="el.collapsed = !el.collapsed">
+            <mdb-icon fas icon="angle-right"></mdb-icon>
+          </button>
+          <span class="ml-1">{{ el.name }}</span>
+        </td>
+        <td>{{ el.projectName }}</td>
+        <td>{{ el.date }}</td>
+        <td>{{ el.location }}</td>
+      </tr>
+      <tr
+        *ngIf="el.collapsed"
+        style="background-color: rgba(0, 0, 0,  0.015)">
+        <td colspan="100%" style="border: 0 !important">
+          <app-meeting [editable]="false" [meeting]=el></app-meeting>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

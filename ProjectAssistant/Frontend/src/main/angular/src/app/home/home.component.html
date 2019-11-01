@@ -1,58 +1,64 @@
-<div class="card">
-    <img src="https://cdn.nwmgroups.hu/s/img/i/1906/20190608kutya.jpg?w=644&h=429" class="card-img" alt="...">
+<ng-container *ngIf="loaded; else loading">
+  <div class="card">
+    <img src="http://www.myiconfinder.com/uploads/iconsets/256-256-eb96923b7137f6ece140cf2a2d794a56-businessman.png" class="card-img" alt="...">
     <div class="card-body">
-        <h5 class="card-title">{{user.name}}</h5>
-        <p class="card-text">{{user.email}}</p>
-        <a routerLink='/user' class="btn btn-primary">Go profile</a>
+      <h5 class="card-title">{{user.name}}</h5>
+      <p class="card-text">{{user.email}}</p>
+      <a routerLink='/user' class="btn btn-primary">Go profile</a>
     </div>
-</div>
-<div class="cards">
+  </div>
+  <div class="cards">
     <div class="card" >
-        <div class="card-body">
-            <div class="card-title">
-                <div>
-                    <h5>Projects</h5>
-                </div>
-                <div><a routerLink='/projects' class="btn btn-primary">Show all</a></div>
-            </div>
-            <table mdbTable class="table" hover="true">
-                <thead>
-                    <tr>
-                        <th scope="col"><b>Name</b></th>
-                        <th scope="col"><b>Owner</b></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr mdbTableCol *ngFor="let project of projects">
-                        <td routerLink='/project/{{project.name}}'>{{project.name}}</td>
-                        <td routerLink='/project/{{project.name}}'>{{project.ownerName}}</td>
-                    </tr>
-                </tbody>
-            </table>
+      <div class="card-body">
+        <div class="card-title">
+          <div>
+            <h5>Projects</h5>
+          </div>
+          <div><a routerLink='/projects' class="btn btn-primary">Show all</a></div>
         </div>
+        <table mdbTable class="table" hover="true">
+          <thead>
+          <tr>
+            <th scope="col"><b>Name</b></th>
+            <th scope="col"><b>Owner</b></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr mdbTableCol *ngFor="let project of projects">
+            <td routerLink='/project/{{project.name}}'>{{project.name}}</td>
+            <td routerLink='/project/{{project.name}}'>{{project.ownerName}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
     <div class="card">
-        <div class="card-body">
-            <div class="card-title">
-                <div>
-                    <h5>Meetings</h5>
-                </div>
-                <div><a routerLink="/meetings" class="btn btn-primary">Show all</a></div>
-            </div>
-            <table mdbTable class="table" hover="true">
-                <thead>
-                    <tr>
-                        <th scope="col"><b>Name</b></th>
-                        <th scope="col"><b>Date</b></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr mdbTableCol *ngFor="let meeting of meetings">
-                        <td routerLink='/meeting/{{meeting.name}}'>{{meeting.name}}</td>
-                        <td routerLink='/meeting/{{meeting.name}}'>{{meeting.date}}</td>
-                    </tr>
-                </tbody>
-            </table>
+      <div class="card-body">
+        <div class="card-title">
+          <div>
+            <h5>Meetings</h5>
+          </div>
+          <div><a routerLink="/meetings" class="btn btn-primary">Show all</a></div>
         </div>
+        <table mdbTable class="table" hover="true">
+          <thead>
+          <tr>
+            <th scope="col"><b>Name</b></th>
+            <th scope="col"><b>Date</b></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr mdbTableCol *ngFor="let meeting of meetings">
+            <td routerLink='/meeting/{{meeting.name}}'>{{meeting.name}}</td>
+            <td routerLink='/meeting/{{meeting.name}}'>{{meeting.date}}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-</div>
+  </div>
+</ng-container>
+
+<ng-template #loading>
+  <app-loader></app-loader>
+</ng-template>

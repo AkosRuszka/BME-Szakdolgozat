@@ -1,5 +1,10 @@
-<p>Kattints a bejelentkezéshez</p>
-
-<div *ngFor="let client of clients | keyvalue">
-  <a href="{{client.value}}">{{client.key}}</a>
+<div class="card text-center" style="margin-top: 2em; padding-top: 1em; width: 60%">
+  <div class="card-title">
+    <h5>Please login!</h5>
+  </div>
+  <div class="card-body">
+    <div *ngFor="let client of clients | keyvalue" style="padding-bottom: 1em">
+      <a href="{{client.value}}" class="btn btn-primary">{{client.key}}</a>
+    </div>
+  </div>
 </div>
