@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.dao.MailMessageRepository;
 import hu.bme.akosruszka.projectmanager.dao.UserRepository;
 import hu.bme.akosruszka.projectmanager.entity.MailTemplate;
@@ -12,18 +13,17 @@ import hu.bme.akosruszka.projectmanager.entity.User;
 import hu.bme.akosruszka.projectmanager.entity.helper.Message;
 import hu.bme.akosruszka.projectmanager.helper.FoundEntityException;
 import hu.bme.akosruszka.projectmanager.helper.NotFoundEntityException;
-import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.client.HttpServerErrorException;
 
 import javax.jms.Destination;
 import java.io.IOException;
 import java.io.StringReader;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -58,7 +58,11 @@ public class MessageService {
             User user = userRepository.findByEmail(email).get();
             model.put("subject", subject);
             model.put("userName", user.getName());
-            model.put("dateTime", ((Meeting) model.get("meeting")).getDate().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm:ss")));
+
+            Meeting meeting = ((Meeting) model.get("meeting"));
+            String date = String.format("%s %s - %s", meeting.getDate(), meeting.getStartTime(), meeting.getEndTime());
+            model.put("dateTime", date);
+
             Template template = new Template("name", new StringReader(templateString), new Configuration(Configuration.VERSION_2_3_29));
 
             String readyMessage = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
@@ -76,6 +80,9 @@ public class MessageService {
         } catch (NotFoundEntityException | FoundEntityException e) {
             log.error(e.getMessage());
             return Optional.of(ResponseEntity.status(HttpStatus.NO_CONTENT).body(e.getMessage()));
+        } catch (HttpServerErrorException.InternalServerError e) {
+            log.error(e.getMessage());
+            return Optional.of(ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body("Messaging server not available"));
         }
         return Optional.empty();
     }

@@ -1,5 +1,6 @@
 package hu.bme.akosruszka.projectmanager.service.rest;
 
+import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.dao.MeetingRepository;
 import hu.bme.akosruszka.projectmanager.dao.MinuteRepository;
 import hu.bme.akosruszka.projectmanager.dao.ProjectRepository;
@@ -12,7 +13,6 @@ import hu.bme.akosruszka.projectmanager.entity.Project;
 import hu.bme.akosruszka.projectmanager.entity.User;
 import hu.bme.akosruszka.projectmanager.entity.helper.EntityMapper;
 import hu.bme.akosruszka.projectmanager.helper.NotFoundEntityException;
-import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.security.IAuthenticationFacade;
 import hu.bme.akosruszka.projectmanager.service.MessageService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.websocket.server.PathParam;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -59,10 +60,25 @@ public class MeetingRestService {
                 .map(EntityMapper::entityToDTO).collect(Collectors.toList()));
     }
 
+    @GetMapping("project/{projectName}")
+    public ResponseEntity getMeetingsFromProject(@PathVariable String projectName) {
+        List<String> meetingNames = projectRepository.findByName(projectName)
+                .map(m -> new ArrayList<>(m.getMeetingNameSet())).orElse(new ArrayList<>());
+
+        List<MeetingDTO> meetings = meetingRepository.findAllByNameIn(meetingNames).stream()
+                .map(Meeting::entityToDTO).collect(Collectors.toList());
+        return ResponseEntity.ok(meetings);
+    }
+
     @GetMapping("{meetingName}")
     public ResponseEntity getMeeting(@PathVariable String meetingName) {
         return meetingRepository.findByName(meetingName)
                 .map(t -> ResponseEntity.ok(t.entityToDTO())).orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+    }
+
+    @GetMapping("check")
+    public ResponseEntity checkMeeting(@PathParam(value = "name") String meetingName) {
+        return ResponseEntity.ok(meetingRepository.findByName(meetingName).isPresent());
     }
 
     @PostMapping
@@ -152,6 +168,8 @@ public class MeetingRestService {
             meeting.setDescription(dto.getDescription());
             meeting.setLocation(dto.getLocation());
             meeting.setDate(dto.getDate());
+            meeting.setStartTime(dto.getStartTime());
+            meeting.setEndTime(dto.getEndTime());
             meetingRepository.save(meeting);
 
             return messageService.publish(new ArrayList<>(removable), StringConstants.MEETING_REMOVED_USER, initializeModel(meeting))
@@ -201,6 +219,7 @@ public class MeetingRestService {
                 .meetingName(meetingName).absentEmailSet(dto.getAbsentEmailSet())
                 .taskSet(dto.getTaskSet()).build();
         meeting.setMinute(minutes);
+        minuteRepository.save(minutes);
         meetingRepository.save(meeting);
         try {
             return messageService.publish(new ArrayList<>(meeting.getEmailsNotification()), StringConstants.MEETING_ADD_MINUTE, initializeModel(meeting, minutes))
@@ -217,6 +236,19 @@ public class MeetingRestService {
                                        @PathVariable("minuteName") String minuteName,
                                        @RequestBody MinutesDTO dto) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @GetMapping("/{meetingName}/minute")
+    @PreAuthorize("@securityService.isInsiderOnMeeting(#meetingName)")
+    public ResponseEntity getMinute(@PathVariable("meetingName") String meetingName) {
+        ResponseEntity responseEntity;
+        Optional<Meeting> meeting = meetingRepository.findByName(meetingName);
+
+        responseEntity = meeting.<ResponseEntity>map(value -> minuteRepository.findAllByTitle(value.getMinuteName())
+                .map(minute -> ResponseEntity.ok().body(minute.entityToDTO()))
+                .orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).build()))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+        return responseEntity;
     }
 
     @SuppressWarnings("OptionalGetWithoutIsPresent")

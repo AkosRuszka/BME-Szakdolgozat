@@ -9,9 +9,10 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class DatanaseInitializer implements CommandLineRunner {
@@ -47,9 +48,27 @@ public class DatanaseInitializer implements CommandLineRunner {
                     .roleSet(new HashSet<>(Collections.singleton(userRole)))
                     .build();
 
-            User user1 = User.builder()
+            User akos = User.builder()
                     .name("test2")
                     .email("akosruszka@gmail.com")
+                    .roleSet(new HashSet<>(Collections.singleton(userRole)))
+                    .build();
+
+            User user2 = User.builder()
+                    .name("test3")
+                    .email("test3@gmail.com")
+                    .roleSet(new HashSet<>(Collections.singleton(userRole)))
+                    .build();
+
+            User user3 = User.builder()
+                    .name("test4")
+                    .email("test4@gmail.com")
+                    .roleSet(new HashSet<>(Collections.singleton(userRole)))
+                    .build();
+
+            User user4 = User.builder()
+                    .name("test5")
+                    .email("test5@gmail.com")
                     .roleSet(new HashSet<>(Collections.singleton(userRole)))
                     .build();
 
@@ -57,14 +76,39 @@ public class DatanaseInitializer implements CommandLineRunner {
                     .name("sanyiProject")
                     .description("Egy leírás a projekthez magyarul.").build();
             project.setProjectOwner(user);
-            project.setParticipantSet(new HashSet<>(Collections.singleton(user1)));
+            project.setParticipantSet(Set.of(akos, user2, user3));
+
+            Project project2 = Project.builder()
+                    .name("ChangedProject")
+                    .description("A második teszt projekt egy picit hosszabb leírással. Megjelenítés illetve működés teszteléséhez.")
+                    .build();
+            project2.setProjectOwner(akos);
+            project2.setParticipantSet(Set.of(user4, user3));
 
             Meeting meeting = Meeting.builder()
-                    .name("meeting1").description("meeting 1 leírása").location("haller")
-                    .date(LocalDateTime.now()).minuteName(null).build();
+                    .name("Első meeting").description("Az első meeting leírása egy rövidebb szösszenet hogy meg" +
+                            "lehessen tekinteni egy akár hosszabb meeting leírásának html oldalban lévő megjelenítését.")
+                    .location("Haller Garden D épület 1. emelet 2H tárgyaló")
+                    .date(LocalDate.now())
+                    .startTime(LocalTime.now())
+                    .endTime(LocalTime.now().plusHours(2))
+                    .minuteName(null).build();
             meeting.setChairPerson(user);
             meeting.setProject(project);
-            meeting.setAttendeeSet(new HashSet<>(Collections.singleton(user1)));
+            meeting.setAttendeeSet(Set.of(akos, user2, user3));
+
+            Meeting meeting2 = Meeting.builder()
+                    .name("Második meeting").description("Az első meeting leírása egy rövidebb szösszenet hogy meg" +
+                            "lehessen tekinteni egy akár hosszabb meeting leírásának html oldalban lévő megjelenítését.")
+                    .location("Haller Garden E épület 6. emelet 2B tárgyaló")
+                    .date(LocalDate.now())
+                    .startTime(LocalTime.now().minusHours(1))
+                    .endTime(LocalTime.now().plusHours(1))
+                    .minuteName(null).build();
+            meeting2.setChairPerson(akos);
+            meeting2.setProject(project2);
+            meeting2.setAttendeeSet(Set.of(user4, user3));
+
 
             Task task = Task.builder()
                     .info(TaskDescription.builder()
@@ -75,7 +119,7 @@ public class DatanaseInitializer implements CommandLineRunner {
                     .build();
             task.setTaskName(task.getInfo().getName());
             task.setProject(project);
-            task.setDeveloper(user1);
+            task.setDeveloper(akos);
 
             String meetingNewMessage = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n" +
                     "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" +
@@ -219,8 +263,13 @@ public class DatanaseInitializer implements CommandLineRunner {
             roleRepository.save(userRole);
             userRepository.save(user);
             projectRepository.save(project);
+            projectRepository.save(project2);
             meetingRepository.save(meeting);
-            userRepository.save(user1);
+            meetingRepository.save(meeting2);
+            userRepository.save(akos);
+            userRepository.save(user2);
+            userRepository.save(user3);
+            userRepository.save(user4);
             taskRepository.save(task);
             mailMessageRepository.save(mailMessage);
             mailMessageRepository.save(mailMessage2);

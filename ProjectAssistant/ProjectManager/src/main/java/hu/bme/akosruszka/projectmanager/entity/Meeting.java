@@ -11,7 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -39,8 +40,14 @@ public class Meeting extends BaseEntity implements UpdateNotifier {
     private String location;
 
     @NotNull
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    private LocalDateTime date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate date;
+
+    @NotNull
+    private LocalTime startTime;
+
+    @NotNull
+    private LocalTime endTime;
 
     @NotBlank
     private String minuteName;
@@ -81,7 +88,10 @@ public class Meeting extends BaseEntity implements UpdateNotifier {
         return Meeting.builder()
                 .name(dto.getName()).description(dto.getDescription())
                 .projectName(dto.getProjectName()).location(dto.getLocation())
-                .date(dto.getDate()).minuteName(dto.getMinuteName())
+                .date(dto.getDate())
+                .startTime(dto.getStartTime())
+                .endTime(dto.getEndTime())
+                .minuteName(dto.getMinuteName())
                 .chairPersonEmail(dto.getChairPersonEmail()).attendeeEmailSet(dto.getAttendeeEmailSet())
                 .build();
     }

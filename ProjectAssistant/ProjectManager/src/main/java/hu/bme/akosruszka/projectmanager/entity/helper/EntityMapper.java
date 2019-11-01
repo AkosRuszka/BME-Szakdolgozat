@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 
 public class EntityMapper {
 
-    private EntityMapper() {}
+    private EntityMapper() {
+    }
 
     public static ProjectDTO entityToDTO(final Project project) {
         return ProjectDTO.builder()
@@ -27,6 +28,8 @@ public class EntityMapper {
                 .projectName(meeting.getProjectName())
                 .location(meeting.getLocation())
                 .date(meeting.getDate())
+                .startTime(meeting.getStartTime())
+                .endTime(meeting.getEndTime())
                 .minuteName(meeting.getMinuteName())
                 .chairPersonEmail(meeting.getChairPersonEmail())
                 .attendeeEmailSet(meeting.getAttendeeEmailSet())
@@ -73,6 +76,8 @@ public class EntityMapper {
         return MeetingDTO.builder()
                 .name(meeting.getName())
                 .date(meeting.getDate())
+                .startTime(meeting.getStartTime())
+                .endTime(meeting.getEndTime())
                 .location(meeting.getLocation())
                 .build();
     }
@@ -96,6 +101,7 @@ public class EntityMapper {
         return TaskDescription.builder()
                 .name(dto.getName())
                 .estimatingDate(dto.getEstimatingDate())
+                .description(dto.getDescription())
                 .build();
     }
 

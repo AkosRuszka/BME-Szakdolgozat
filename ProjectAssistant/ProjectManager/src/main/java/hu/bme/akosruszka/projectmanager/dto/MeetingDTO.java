@@ -1,5 +1,6 @@
 package hu.bme.akosruszka.projectmanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,7 +9,8 @@ import lombok.NoArgsConstructor;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 
 @Builder
@@ -25,7 +27,12 @@ public class MeetingDTO {
     @NotBlank
     private String location;
     @NotNull
-    private LocalDateTime date;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private LocalDate date;
+    @NotNull
+    private LocalTime startTime;
+    @NotNull
+    private LocalTime endTime;
     private String minuteName;
     @NotBlank
     @Valid
