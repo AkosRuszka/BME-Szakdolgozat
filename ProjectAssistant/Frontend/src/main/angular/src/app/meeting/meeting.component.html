@@ -1,1 +1,276 @@
-<p>meeting works!</p>
+<div *ngIf="!edit" class="meeting">
+  <div class="heading">
+    <div class="names">
+      <h3>{{meeting.name}}</h3>
+      <h5>{{meeting.projectName}}</h5>
+    </div>
+    <div class="buttons" *ngIf="editable">
+      <button (click)="edit=true" class="btn btn-success btn-space">Edit</button>
+    </div>
+  </div>
+  <div class="data">
+    <div class="details">
+      <p>{{meeting.date | date : "yyyy.MM.d" }}</p>
+      <p>{{meeting.startTime}} - {{meeting.endTime}}</p>
+      <p>{{meeting.location}}</p>
+      <hr>
+      <p>{{meeting.description}}</p>
+    </div>
+    <div class="members">
+      <div class="organiser">
+        <h5>Organiser</h5>
+        <a>{{meeting.chairPersonEmail}}</a>
+      </div>
+      <div class="attendees">
+        <h5>Attendees</h5>
+        <ng-container *ngFor="let attendees of (meeting.attendeeEmailSet == undefined ? [] : meeting.attendeeEmailSet)">
+          <div>{{attendees}}</div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="minute" *ngIf="editable">
+  <div class="data" style="padding-top: 5rem;">
+    <h3>Minute</h3>
+    <div *ngIf="meeting.minuteName == undefined">
+      <button type="submit" class="btn btn-success btn-space" data-target="#newMinuteModal" data-toggle="modal">
+        Jegyzőkönyv felvétele
+      </button>
+    </div>
+    <div *ngIf="meeting.minuteName != undefined">
+      <button type="submit" class="btn btn-success btn-space">Jegyzőkönyv szerkesztése</button>
+    </div>
+  </div>
+  <div *ngIf="meeting.minuteName != undefined">
+    <h4>{{minute.title}}</h4>
+    <h5>Hianyzo emberek:</h5>
+    <div *ngFor="let user of minute.absentEmailSet">
+      {{user}}
+    </div>
+    <div class="tasks">
+      <label for="taskTable"><b>Tasks</b></label>
+      <table id="taskTables" mdbTable striped="true">
+        <thead>
+        <tr>
+          <th *ngFor="let head of ['Task nev','Lejarati ido']" scope="col">{{ head }}</th>
+        </tr>
+        </thead>
+        <tbody mdbTableCol *ngFor="let el of minute.taskSet">
+        <tr>
+          <td scope="row">
+            <button
+              type="button"
+              mdbBtn
+              color="danger"
+              class="master-button"
+              mdbWavesEffect
+              *ngIf="el.collapsed"
+              (click)="el.collapsed = !el.collapsed;">
+              <mdb-icon fas icon="angle-down"></mdb-icon>
+            </button>
+            <button
+              type="button"
+              mdbBtn
+              color="success"
+              class="master-button"
+              mdbWavesEffect
+              *ngIf="!el.collapsed"
+              (click)="el.collapsed = !el.collapsed">
+              <mdb-icon fas icon="angle-right"></mdb-icon>
+            </button>
+            <span class="ml-1">{{ el.name }}</span>
+          </td>
+          <td>
+            <span class="ml-1">{{ el.estimatingDate | date : "yyyy-MM-dd" }}</span>
+          </td>
+        </tr>
+        <tr *ngIf="el.collapsed">
+          <div style="background-color: rgba(0, 0, 0,  0.015); padding-left: 2em">
+            <td>{{ el.description }}</td>
+          </div>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="newMinuteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="newMinuteModalLabel">Add minute to Meeting</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id='newProjectModalBody'>
+        <form [formGroup]='addMinuteForm' (ngSubmit)='addMinute()'>
+          <label for="minuteTitle">Title</label>
+          <input type="text" id="minuteTitle" formControlName="minuteTitle" class="form-control"
+                 placeholder="Minute title">
+
+          <div class="absents">
+            <div>
+              <label for="addedAbsent">Added absent</label>
+              <div class="attendee" id="addedAbsent" *ngFor="let absent of newAbsentEmailSet" style="margin-left: 1em">
+                <a>{{absent}}</a>
+                <mdb-icon fas icon="times" (click)="removeAbsent(absent)"></mdb-icon>
+              </div>
+            </div>
+            <div>
+              <label for="absentEmailSet">Add new absent</label>
+              <input type="text" id="absentEmailSet" formControlName="absentEmailSet" class="form-control"
+                     placeholder="asd@asd.com" mdbInput (keyup.enter)="addAbsentEmail($event)">
+              <small class="text-danger" *ngIf="userNotExist">This email has been not registered.</small>
+            </div>
+          </div>
+
+          <div class="tasks">
+            <label for="taskTable">Tasks</label>
+            <table id="taskTable" mdbTable striped="true">
+              <thead>
+              <tr>
+                <th *ngFor="let head of ['Task nev','Lejarati ido']" scope="col">{{ head }}</th>
+              </tr>
+              </thead>
+              <tbody mdbTableCol *ngFor="let el of newTaskSet">
+              <tr>
+                <td scope="row">
+                  <button
+                    type="button"
+                    mdbBtn
+                    color="danger"
+                    class="master-button"
+                    mdbWavesEffect
+                    *ngIf="el.collapsed"
+                    (click)="el.collapsed = !el.collapsed;">
+                    <mdb-icon fas icon="angle-down"></mdb-icon>
+                  </button>
+                  <button
+                    type="button"
+                    mdbBtn
+                    color="success"
+                    class="master-button"
+                    mdbWavesEffect
+                    *ngIf="!el.collapsed"
+                    (click)="el.collapsed = !el.collapsed">
+                    <mdb-icon fas icon="angle-right"></mdb-icon>
+                  </button>
+                  <span class="ml-1">{{ el.name }}</span>
+                </td>
+                <td>
+                  <span class="ml-1">{{ el.estimatingDate | date : "yyyy-MM-dd" }}</span>
+                </td>
+                <td>
+                  <button mdbBtn (click)="removeTask(el)" type="button" color="danger" class="master-button">Remove
+                    task
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="el.collapsed">
+                <div style="background-color: rgba(0, 0, 0,  0.015); padding-left: 2em">
+                  <td>{{ el.description }}</td>
+                </div>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </form>
+        <form [formGroup]='addTaskForm' (ngSubmit)='addTask()'>
+          <label for="taskName">New task</label>
+          <input type="text" id="taskName" formControlName="taskName" class="form-control taskSet"
+                 placeholder="Task name" mdbInput>
+          <input type="text" id="taskDescription" formControlName="taskDescription" class="form-control taskSet"
+                 placeholder="Task description">
+          <input type="text" id="estimatingDate" formControlName="estimatingDate" class="form-control taskSet"
+                 placeholder="Estimating date">
+          <button mdbBtn type="submit" color="success" class="btn btn-space"
+                  [disabled]="!addTaskForm.valid">Add
+          </button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button mdbBtn (click)="cancelAddMinute()" type="button" color="danger" class="btn btn-space"
+                data-dismiss="modal">Cancel
+        </button>
+        <button mdbBtn (click)="addMinute()" color="success" data-dismiss="modal" class="btn btn-space"
+                [disabled]="!addMinuteForm.valid">Create
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div *ngIf="edit" class="meeting">
+  <form [formGroup]="editMeetingForm" (ngSubmit)="editMeeting() ">
+    <div class="heading">
+      <div class="names">
+        <div class="md-form">
+          <label for="meetingName">Meeting name</label>
+          <input type="text" id="meetingName" formControlName="meetingName" class="form-control"
+                 value="MeetingName" mdbInput>
+          <small class="text-danger"
+                 *ngIf=" !editMeetingForm.get('meetingName').valid && editMeetingForm.get('meetingName').touched">
+            Meeting name is required!
+          </small>
+          <small class="text-danger" *ngIf="meetingNameIsAlreadyExist">This meeting name is already exist!</small>
+        </div>
+      </div>
+      <div class="buttons">
+        <button type="submit" class="btn btn-success btn-space" [disabled]="!editMeetingForm.valid">Save</button>
+        <button (click)="cancelEdit()" class="btn btn-primary btn-space">Cancel</button>
+        <button (click)="deleteMeeting()" class="btn btn-danger btn-space">Delete</button>
+      </div>
+    </div>
+    <div class="data">
+      <div class="details">
+        <div class="md-form">
+          <label for="meetingDate">Choose date</label>
+          <input type="date" id="meetingDate" formControlName="meetingDate" class="form-control" mdbInput>
+        </div>
+        <div class="md-form">
+          <label for="meetingStart">Choose start time</label>
+          <input type="time" id="meetingStart" formControlName="meetingStart" class="form-control"
+                 value="13:00" mdbInput/>
+        </div>
+        <div class="md-form">
+          <label for="meetingEnd">Choose end time</label>
+          <input type="time" id="meetingEnd" formControlName="meetingEnd" class="form-control" value="13:00"
+                 mdbInput/>
+        </div>
+        <div class="md-form">
+          <label for="meetingLocation">Location</label>
+          <input type="text" id="meetingLocation" formControlName="meetingLocation" class="form-control"
+                 value="B epulet, nagytargyalo" mdbInput>
+        </div>
+        <div class="md-form">
+          <label for="meetingDescription">Description</label>
+          <textarea type="text" id="meetingDescription" formControlName="meetingDescription"
+                    class="md-textarea md-textarea-auto form-control" mdbInput></textarea>
+        </div>
+      </div>
+      <div class="members">
+        <div class="organiser">
+          <h5>Organiser</h5>
+          <a>{{meeting.chairPersonEmail}}</a>
+        </div>
+        <div class="attendees">
+          <h5>Attendees</h5>
+          <label for="attendeeEmail">New attendee</label>
+          <input type="text" id="attendeeEmail" formControlName="attendeeEmail" class="form-control"
+                 placeholder="asd@asd.com" mdbInput (keyup.enter)="addAttendee($event)">
+          <small class="text-danger" *ngIf="userNotExist">This email has been not registered.</small>
+          <div class="attendee" *ngFor="let attendees of newAttendeeEmailList" style="margin-top: 1em">
+            <a>{{attendees}}</a>
+            <mdb-icon fas icon="times" (click)="remove(attendees)"></mdb-icon>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>

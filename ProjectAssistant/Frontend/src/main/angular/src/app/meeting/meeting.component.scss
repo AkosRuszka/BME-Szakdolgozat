@@ -1,0 +1,97 @@
+.meeting {
+  margin-top: 2rem;
+
+  .heading {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .names {
+      padding-bottom: 2em;
+    }
+
+    .buttons button {
+      margin-right: 1em;
+    }
+
+  }
+
+  .data {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+    .details {
+      width: 65%;
+      padding-right: 1em;
+
+      p {
+        margin: 0px;
+      }
+
+    }
+
+    .members {
+      width: 35%;
+      padding-left: 1em;
+
+      a {
+        padding-left: 1em;
+      }
+
+      .organiser {
+        padding-bottom: 3em;
+      }
+
+      .attendee {
+
+        mdb-icon {
+          margin-left: 1em;
+          color: red;
+        }
+
+        mdb-icon:hover {
+          color: brown;
+          cursor: pointer;
+
+        }
+
+      }
+    }
+  }
+}
+
+.minute {
+  .data {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
+
+.modal-body {
+  mdb-icon {
+    margin-left: 1em;
+    color: red;
+  }
+
+  mdb-icon:hover {
+    color: brown;
+    cursor: pointer;
+
+  }
+
+  label {
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+}
+
+.master-button {
+  padding: 0.25rem 0.7rem !important;
+  font-size: 0.9rem !important;
+}
+
+.taskSet {
+  margin-bottom: 1em;
+}

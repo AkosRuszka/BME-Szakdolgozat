@@ -1,18 +1,134 @@
-<p>project works!</p>
-
-<ng-container *ngIf="project != null">
-  <div>
-    <p>{{project.name}}</p>
-    <p>{{project.description}}</p>
-    <div *ngFor="let meeting of project.meetingSet">
-      <p>{{meeting}}</p>
+<div class="project">
+  <div class="heading">
+    <div class="names">
+      <h3>{{project.name}}</h3>
     </div>
-    <div *ngFor="let participant of project.participantSet">
-      <p>{{participant}}</p>
+    <div class="buttons">
+      <button class="btn btn-success btn-space" data-target="#newMinuteModal" data-toggle="modal">Edit</button>
     </div>
-    <div *ngFor="let task of project.taskSet">
-      <p>{{task}}</p>
-    </div>
-    <p>{{project.ownerName}}</p>
   </div>
-</ng-container>
+  <div class="data">
+    <div class="details">
+      <hr>
+      <p>{{project.description}}</p>
+      <hr>
+    </div>
+    <div class="members">
+      <div class="organiser">
+        <h5>Organiser</h5>
+        <a>{{project.ownerName}}</a>
+      </div>
+      <div class="attendees">
+        <h5>Participants</h5>
+        <ng-container *ngFor="let participant of (project.participantSet == undefined ? [] : project.participantSet)">
+          <div>{{participant}}</div>
+        </ng-container>
+      </div>
+      <div class="attendees">
+        <h5>Meetings</h5>
+        <ng-container *ngFor="let meeting of (project.meetingSet == undefined ? [] : project.meetingSet)">
+          <div>{{meeting}}</div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+
+  <div class="tasks">
+    <label for="taskTables"><b>Tasks</b></label>
+    <table id="taskTables" mdbTable striped="true">
+      <thead>
+      <tr>
+        <th *ngFor="let head of ['Task nev','Lejarati ido', 'Fejleszto']" scope="col">{{ head }}</th>
+      </tr>
+      </thead>
+      <tbody mdbTableCol *ngFor="let el of tasks">
+      <tr>
+        <td scope="row">
+          <button
+            type="button"
+            mdbBtn
+            color="danger"
+            class="master-button"
+            mdbWavesEffect
+            *ngIf="el.collapsed"
+            (click)="el.collapsed = !el.collapsed;">
+            <mdb-icon fas icon="angle-down"></mdb-icon>
+          </button>
+          <button
+            type="button"
+            mdbBtn
+            color="success"
+            class="master-button"
+            mdbWavesEffect
+            *ngIf="!el.collapsed"
+            (click)="el.collapsed = !el.collapsed">
+            <mdb-icon fas icon="angle-right"></mdb-icon>
+          </button>
+          <span class="ml-1">{{ el.info.name }}</span>
+        </td>
+        <td>
+          <span class="ml-1">{{ el.info.estimatingDate | date : "yyyy-MM-dd" }}</span>
+        </td>
+        <td>
+          <span class="ml-1">{{ el.developerEmail }}</span>
+        </td>
+      </tr>
+      <tr *ngIf="el.collapsed">
+        <div style="background-color: rgba(0, 0, 0,  0.015); padding-left: 2em">
+          <td>{{ el.info.description }}</td>
+        </div>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="meetings">
+    <label for="meetingTables"><b>Meetings</b></label>
+    <table id="meetingTables" mdbTable striped="true">
+      <thead>
+      <tr>
+        <th *ngFor="let head of ['Meeting neve','Idopont', 'Helyszin']" scope="col">{{ head }}</th>
+      </tr>
+      </thead>
+      <tbody mdbTableCol *ngFor="let el of meetings">
+      <tr>
+        <td scope="row">
+          <button
+            type="button"
+            mdbBtn
+            color="danger"
+            class="master-button"
+            mdbWavesEffect
+            *ngIf="el.collapsed"
+            (click)="el.collapsed = !el.collapsed;">
+            <mdb-icon fas icon="angle-down"></mdb-icon>
+          </button>
+          <button
+            type="button"
+            mdbBtn
+            color="success"
+            class="master-button"
+            mdbWavesEffect
+            *ngIf="!el.collapsed"
+            (click)="el.collapsed = !el.collapsed">
+            <mdb-icon fas icon="angle-right"></mdb-icon>
+          </button>
+          <span class="ml-1">{{ el.name }}</span>
+        </td>
+        <td>
+          <span class="ml-1">{{ el.date | date : "yyyy-MM-dd" }}:{{ el.startTime  }}</span>
+        </td>
+        <td>
+          <span class="ml-1">{{ el.location }}</span>
+        </td>
+      </tr>
+      <tr *ngIf="el.collapsed">
+        <div style="background-color: rgba(0, 0, 0,  0.015); padding-left: 2em">
+          <td>{{ el.chairPersonEmail }}</td>
+          <td>{{ el.description }}</td>
+        </div>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

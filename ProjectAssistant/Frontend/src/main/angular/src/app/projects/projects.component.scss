@@ -18,9 +18,31 @@ mdb-icon {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+
+  .projectName h3 {
+    font-weight: bold;
+  }
+
+  .card-subtitle {
+    font-weight: bold;
+    p {
+      margin-left: 2rem;
+      font-weight: normal;
+    }
+  }
+
+  .card-text {
+    font-weight: bold;
+    p {
+      margin-left: 2rem;
+      font-weight: normal;
+    }
+
+  }
 }
 .details {
   position: sticky;
   top: 60px;
   height: min-content;
 }
+

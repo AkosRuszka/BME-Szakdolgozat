@@ -1,7 +1,7 @@
 export class Project {
   name : string;
   description: string;
-  meetingMap: Map<string, string>;
+  meetingSet: string[];
   participantSet: string[];
   ownerName: string;
   taskSet: string[];
@@ -18,10 +18,12 @@ export class Meeting {
   description: string;
   projectName: string;
   location: string;
-  date: Date;
+  date: string;
+  startTime: string;
+  endTime: string;
   minuteName: string;
   chairPersonEmail: string;
-  attendeeEmailSet: string;
+  attendeeEmailSet: string[];
 }
 
 export class Minutes {

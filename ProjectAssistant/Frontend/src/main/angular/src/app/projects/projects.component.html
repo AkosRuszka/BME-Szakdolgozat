@@ -32,31 +32,29 @@
     <div class="card details" routerLink='/project/{{selectedProject.name}}'>
       <div class="card-body">
         <div class="card-title">
-          <div>
-            <h3>
-              <b>{{selectedProject.name}}</b>
-            </h3>
+          <div class="projectName">
+            <h3>{{selectedProject.name}}</h3>
           </div>
         </div>
         <div class="card-subtitle">
-          <p><b>Owner:</b></p>
+          Owner:
           <p>{{selectedProject.ownerName}}</p>
         </div>
         <div class="card-text">
-          <p><b>Leírás:</b></p>
-          <p>{{selectedProject.description}}</p><br>
-          <p><b>Meetingek:</b></p>
-          <div *ngFor="let meeting of selectedProject.meetingMap | keyvalue">
-            <p>{{meeting.key}} - {{meeting.value}}</p>
-          </div><br>
-          <p><b>Feladatok:</b></p>
-          <div *ngFor="let task of selectedProject.taskSet">
-            <p>{{task}}</p>
-          </div><br>
-          <p><b>Résztvevők:</b></p>
+          Leírás:
+            <p>{{selectedProject.description}}</p><br>
+          Meetingek:
+            <div *ngFor="let meeting of selectedProject.meetingSet">
+              <p>{{meeting}}</p>
+            </div>
+          Feladatok:
+            <div *ngFor="let task of selectedProject.taskSet">
+              <p>{{task}}</p>
+            </div>
+          Résztvevők:
           <div *ngFor="let user of selectedProject.participantSet">
             <p>{{user}}</p>
-          </div><br>
+          </div>
         </div>
       </div>
     </div>

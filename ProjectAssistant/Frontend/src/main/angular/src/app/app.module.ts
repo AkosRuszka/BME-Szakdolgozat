@@ -1,6 +1,4 @@
 import {BrowserModule} from '@angular/platform-browser';
-import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
-
 import {IconsModule, MDBBootstrapModule, TableModule} from 'angular-bootstrap-md';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
@@ -9,13 +7,18 @@ import {TaskComponent} from './task/task.component';
 import {MeetingComponent} from './meeting/meeting.component';
 import {ProjectComponent} from './project/project.component';
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
-import {NgModule} from "@angular/core";
 import {HomeComponent} from './home/home.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import {UserComponent} from './user/user.component';
 import {LoginComponent} from './login/login.component';
 import {CookieService} from "ngx-cookie-service";
 import {Tokeninterceptor} from "./services/tokeninterceptor";
+import { LoaderComponent } from './loader/loader.component';
+import { MeetingsComponent } from './meetings/meetings.component';
+import {NgModule} from "@angular/core";
+import {NgbModule} from "@ng-bootstrap/ng-bootstrap";
+import {MatDialogModule} from "@angular/material";
+
 
 @NgModule({
   declarations: [
@@ -26,7 +29,9 @@ import {Tokeninterceptor} from "./services/tokeninterceptor";
     ProjectComponent,
     HomeComponent,
     UserComponent,
-    LoginComponent
+    LoginComponent,
+    LoaderComponent,
+    MeetingsComponent
   ],
   imports: [
     BrowserModule,
@@ -34,6 +39,7 @@ import {Tokeninterceptor} from "./services/tokeninterceptor";
     TableModule, IconsModule,
     FormsModule,
     ReactiveFormsModule,
+    MatDialogModule,
     HttpClientModule,
     NgbModule,
     MDBBootstrapModule.forRoot()
