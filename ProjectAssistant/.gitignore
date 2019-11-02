@@ -3,3 +3,4 @@
 *.iws
 */log/
 */target/
+/Jenkins/src/main/resources/jenkins_home/
