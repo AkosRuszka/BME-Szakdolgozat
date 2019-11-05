@@ -15,6 +15,41 @@
     <packaging>pom</packaging>
     <version>1.0</version>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-build</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/docker</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}/src/main/resources</directory>
+                                    <filtering>false</filtering>
+                                    <includes>
+                                        <include>Dockerfile</include>
+                                        <include>docker-compose.yml</include>
+                                        <include>httpd.conf</include>
+                                    </includes>
+                                </resource>
+                                <resource>
+                                    <directory>${basedir}/src/main/angular/dist</directory>
+                                    <filtering>false</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <profiles>
         <profile>
             <id>frontend-build</id>

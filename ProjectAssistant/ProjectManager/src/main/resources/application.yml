@@ -16,12 +16,6 @@ server:
       suffix: .log
   connection-timeout: 5s
   max-http-header-size: 10KB
-#  ssl:
-#    enabled: true
-#    protocol: TLS
-#    key-store: keystore-path
-#    key-store-password: my_password
-#    key-alias: projectassistant
 
 spring:
   main:
