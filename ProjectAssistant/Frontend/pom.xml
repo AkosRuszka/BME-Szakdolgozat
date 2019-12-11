@@ -33,9 +33,7 @@
                                     <directory>${basedir}/src/main/resources</directory>
                                     <filtering>false</filtering>
                                     <includes>
-                                        <include>Dockerfile</include>
                                         <include>docker-compose.yml</include>
-                                        <include>httpd.conf</include>
                                     </includes>
                                 </resource>
                                 <resource>

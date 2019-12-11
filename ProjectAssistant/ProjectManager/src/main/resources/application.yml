@@ -16,6 +16,11 @@ server:
       suffix: .log
   connection-timeout: 5s
   max-http-header-size: 10KB
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:trust/authentication.p12
+    key-store-password: authentication
+    key-alias: authentication
 
 spring:
   main:
@@ -54,3 +59,13 @@ app:
   oauth2:
     authorizedRedirectUri:
       - http://localhost:9004/oauth2/redirect
+
+database:
+  required:
+    initialize: false
+
+myauth:
+  service:
+    ip: localhost
+    port: 9200
+

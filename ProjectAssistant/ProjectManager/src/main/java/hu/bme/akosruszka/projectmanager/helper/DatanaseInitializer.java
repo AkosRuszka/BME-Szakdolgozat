@@ -4,6 +4,7 @@ import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.dao.*;
 import hu.bme.akosruszka.projectmanager.entity.*;
 import hu.bme.akosruszka.projectmanager.entity.helper.TaskDescription;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +29,9 @@ public class DatanaseInitializer implements CommandLineRunner {
 
     private final MailMessageRepository mailMessageRepository;
 
+    @Value("${database.required.initialize}")
+    private Boolean isInitialize = false;
+
     public DatanaseInitializer(RoleRepository roleRepository, UserRepository userRepository, ProjectRepository projectRepository, MeetingRepository meetingRepository, TaskRepository taskRepository, MailMessageRepository mailMessageRepository) {
         this.roleRepository = roleRepository;
         this.userRepository = userRepository;
@@ -39,7 +43,7 @@ public class DatanaseInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        if (false) {
+        if (isInitialize) {
             Role userRole = new Role("ROLE_USER");
 
             User user = User.builder()

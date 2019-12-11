@@ -8,17 +8,17 @@ import {Meeting, Minutes, Project, Task, User} from "../models/dtos";
 })
 export class CommunicationService {
 
-  private url = 'http://localhost:9003';
+  private url = 'https://35.159.53.178/be';
   private meetingURL = this.url + '/meeting';
   private projectURL = this.url + '/project';
   private taskURL = this.url + '/task';
   private userURL = this.url + '/user';
+  private authURL = 'https://35.159.53.178/auth/getRegisteredClients';
 
   private httpOptions = {
     headers: new HttpHeaders({
-      'Authorization': 'Basic dGVzdEBnbWFpbC5jb206amVsc3pv',
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': 'localhost:4200',
+      'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Content-Type'
     }),
     params: new HttpParams()
@@ -115,7 +115,7 @@ export class CommunicationService {
   }
 
   getRegisteredClients() : Observable<Map<string, string>> {
-    return this.http.get<Map<string, string>>(this.url + '/authentication/getOAuthClients', this.httpOptions);
+    return this.http.get<Map<string, string>>(this.authURL, this.httpOptions);
   }
 
   existUser(email: string): Observable<boolean> {

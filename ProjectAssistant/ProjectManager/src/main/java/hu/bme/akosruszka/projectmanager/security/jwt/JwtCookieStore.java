@@ -1,9 +1,9 @@
 package hu.bme.akosruszka.projectmanager.security.jwt;
 
+import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.dao.UserRepository;
 import hu.bme.akosruszka.projectmanager.entity.Role;
 import hu.bme.akosruszka.projectmanager.entity.User;
-import hu.bme.akosruszka.projectmanager.constans.StringConstants;
 import hu.bme.akosruszka.projectmanager.security.UserPrincipal;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,7 +30,7 @@ public class JwtCookieStore {
     @Autowired
     private UserRepository userRepository;
 
-    public Optional<Authentication> retrieveToken(HttpServletRequest request, HttpServletResponse response) {
+    public Optional<Authentication> retrieveToken(HttpServletRequest request) {
         String token = findCookie(request)
                 .map(Cookie::getValue)
                 .orElseGet(() -> request.getHeader("Authorization").split(" ")[1]);
@@ -45,7 +44,7 @@ public class JwtCookieStore {
 
             UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(new UserPrincipal(user), null,
                     user.getRoleSet()
-                    .stream().map(Role::getName).map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
+                            .stream().map(Role::getName).map(SimpleGrantedAuthority::new).collect(Collectors.toList()));
 
             return Optional.of(auth);
         }

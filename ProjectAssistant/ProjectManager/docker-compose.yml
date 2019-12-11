@@ -1,0 +1,32 @@
+version: "3.2"
+
+services:
+
+  mongo:
+    image: mongo
+    restart: always
+    container_name:  management-db
+    hostname: management-db
+    networks:
+      management:
+        aliases:
+          - mongo
+    ports:
+      - "27017-27019:27017-27019"
+
+  management:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: management
+    hostname: management
+    networks:
+      - management
+    ports:
+      - "9001:9003"
+    volumes:
+      - ./config:/app/config
+
+networks:
+  management:
+    external: true

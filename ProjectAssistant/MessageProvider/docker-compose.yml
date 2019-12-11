@@ -1,13 +1,15 @@
-version: '2'
+version: "3.2"
+
 services:
 
   activemq:
     image: rmohr/activemq
     hostname: activeMQ
     container_name: activeMQ
-#    volumes:
-#      - ./jms/conf:/opt/activemq/conf
-#      - ./jms/data:/mnt/activemq/data
+    networks:
+      message:
+        aliases:
+          - activemq
     ports:
       # mqtt
       - "1883:1883"
@@ -30,3 +32,22 @@ services:
       - ACTIVEMQ_USERS_myconsumer=myconsumerpassword
       - ACTIVEMQ_GROUPS_reads=myconsumer
       - ACTIVEMQ_CONFIG_QUEUES_projectAssistant1=projectAssistant
+
+
+  messageservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: message-service
+    networks:
+      - message
+    hostname: message-service
+    volumes:
+      - ./config:/app/config
+    ports:
+      - "9002:9002"
+
+
+networks:
+  message:
+    external: true

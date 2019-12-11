@@ -61,6 +61,7 @@ public class MeetingRestService {
     }
 
     @GetMapping("project/{projectName}")
+    @PreAuthorize("@securityService.isInsider(#projectName)")
     public ResponseEntity getMeetingsFromProject(@PathVariable String projectName) {
         List<String> meetingNames = projectRepository.findByName(projectName)
                 .map(m -> new ArrayList<>(m.getMeetingNameSet())).orElse(new ArrayList<>());
@@ -71,6 +72,7 @@ public class MeetingRestService {
     }
 
     @GetMapping("{meetingName}")
+    @PreAuthorize("@securityService.isInsiderOnMeeting(#meetingName)")
     public ResponseEntity getMeeting(@PathVariable String meetingName) {
         return meetingRepository.findByName(meetingName)
                 .map(t -> ResponseEntity.ok(t.entityToDTO())).orElse(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
@@ -117,7 +119,7 @@ public class MeetingRestService {
     }
 
     @PutMapping("{meetingName}")
-    @PreAuthorize("@securityService.isInsider(#dto.projectName)")
+    @PreAuthorize("@securityService.isMeetingOwner(#dto.projectName)")
     public ResponseEntity updateMeeting(@PathVariable String meetingName, @RequestBody MeetingDTO dto) {
         try {
             Meeting meeting = meetingRepository.findByName(meetingName).orElseThrow(
@@ -182,6 +184,7 @@ public class MeetingRestService {
     }
 
     @DeleteMapping("{meetingName}")
+    @PreAuthorize("@securityService.isMeetingOwner(#meetingName)")
     public ResponseEntity deleteMeeting(@PathVariable String meetingName) {
         try {
             Meeting meeting = meetingRepository.findByName(meetingName).orElseThrow(() ->

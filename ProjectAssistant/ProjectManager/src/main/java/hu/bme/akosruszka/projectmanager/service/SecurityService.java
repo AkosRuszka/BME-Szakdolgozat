@@ -61,6 +61,11 @@ public class SecurityService {
                 .isPresent();
     }
 
+    public boolean isMeetingOwner(@NotBlank String meetingName) {
+        return meetingRepository.findByName(meetingName)
+                .filter(meeting -> meeting.getChairPersonEmail().equals(getUser().getEmail())).isPresent();
+    }
+
     private User getUser() {
         return ((UserPrincipal) auth.getAuthentication().getPrincipal()).getUser();
     }

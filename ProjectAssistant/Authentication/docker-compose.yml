@@ -1,0 +1,32 @@
+version: '3.2'
+
+services:
+
+  authDB:
+    image: mongo
+    restart: always
+    container_name:  authDB
+    hostname: authDB
+    networks:
+      auth-network:
+        aliases:
+          - authDB
+    ports:
+      - "27020-27022:27017-27019"
+
+  auth:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: authentication
+    hostname: authentication
+    networks:
+      - auth-network
+    ports:
+      - "9002:9002"
+    volumes:
+      - ./config:/app/config
+
+networks:
+  auth-network:
+    external: true

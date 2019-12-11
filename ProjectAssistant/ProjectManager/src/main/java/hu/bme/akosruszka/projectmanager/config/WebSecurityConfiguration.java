@@ -1,6 +1,6 @@
 package hu.bme.akosruszka.projectmanager.config;
 
-import hu.bme.akosruszka.projectmanager.security.CustomAuthenticationEntiryPoint;
+import hu.bme.akosruszka.projectmanager.security.CustomAuthenticationEntryPoint;
 import hu.bme.akosruszka.projectmanager.security.jwt.JwtTokenAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -64,6 +64,6 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Bean
     public BasicAuthenticationEntryPoint authenticationEntryPoint() {
-        return new CustomAuthenticationEntiryPoint();
+        return new CustomAuthenticationEntryPoint();
     }
 }

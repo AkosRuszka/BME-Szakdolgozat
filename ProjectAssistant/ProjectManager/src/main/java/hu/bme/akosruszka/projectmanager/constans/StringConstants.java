@@ -13,7 +13,7 @@ public class StringConstants {
     public static final String MEETING_NEW = "meeting.new";
     public static final String MEETING_UPDATED = "meeting.updated";
     public static final String MEETING_DELETED = "meeting.deleted";
-    public static final String MEETING_REMOVED_USER = "meeting.removed.uder";
+    public static final String MEETING_REMOVED_USER = "meeting.removed.user";
     public static final String MEETING_ADD_MINUTE = "meeting.add.minute";
     public static final String MEETING_UPDATE_MINUTE = "meeting.update.minute";
 

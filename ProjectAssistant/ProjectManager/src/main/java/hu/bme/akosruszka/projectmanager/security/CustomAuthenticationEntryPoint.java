@@ -13,7 +13,7 @@ import java.io.IOException;
 
 @Slf4j
 @Component
-public class CustomAuthenticationEntiryPoint extends BasicAuthenticationEntryPoint {
+public class CustomAuthenticationEntryPoint extends BasicAuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request,

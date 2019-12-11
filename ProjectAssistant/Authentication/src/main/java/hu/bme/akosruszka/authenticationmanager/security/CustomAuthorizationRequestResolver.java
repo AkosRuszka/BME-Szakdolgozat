@@ -33,8 +33,7 @@ public class CustomAuthorizationRequestResolver implements OAuth2AuthorizationRe
         return req;
     }
 
-    private OAuth2AuthorizationRequest customizeAuthorizationRequest(
-            OAuth2AuthorizationRequest req, String referer) {
+    private OAuth2AuthorizationRequest customizeAuthorizationRequest(OAuth2AuthorizationRequest req, String referer) {
         return OAuth2AuthorizationRequest
                 .from(req)
                 .state(referer)

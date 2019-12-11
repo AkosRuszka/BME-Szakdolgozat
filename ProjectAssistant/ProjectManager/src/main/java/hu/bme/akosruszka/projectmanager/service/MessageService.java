@@ -9,6 +9,7 @@ import hu.bme.akosruszka.projectmanager.dao.MailMessageRepository;
 import hu.bme.akosruszka.projectmanager.dao.UserRepository;
 import hu.bme.akosruszka.projectmanager.entity.MailTemplate;
 import hu.bme.akosruszka.projectmanager.entity.Meeting;
+import hu.bme.akosruszka.projectmanager.entity.Project;
 import hu.bme.akosruszka.projectmanager.entity.User;
 import hu.bme.akosruszka.projectmanager.entity.helper.Message;
 import hu.bme.akosruszka.projectmanager.helper.FoundEntityException;
@@ -59,11 +60,17 @@ public class MessageService {
             model.put("subject", subject);
             model.put("userName", user.getName());
 
-            Meeting meeting = ((Meeting) model.get("meeting"));
-            String date = String.format("%s %s - %s", meeting.getDate(), meeting.getStartTime(), meeting.getEndTime());
-            model.put("dateTime", date);
+            if (model.get("meeting") != null) {
+                Meeting meeting = ((Meeting) model.get("meeting"));
+                String date = String.format("%s %s - %s", meeting.getDate(), meeting.getStartTime(), meeting.getEndTime());
+                model.put("dateTime", date);
+            } else if (model.get("project") != null) {
+                Project project = ((Project) model.get("project"));
+                model.put("project", project);
+            }
 
-            Template template = new Template("name", new StringReader(templateString), new Configuration(Configuration.VERSION_2_3_29));
+
+            Template template = new Template("name", new StringReader(templateString), new Configuration(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS));
 
             String readyMessage = FreeMarkerTemplateUtils.processTemplateIntoString(template, model);
 

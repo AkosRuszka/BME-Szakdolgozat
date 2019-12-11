@@ -22,13 +22,13 @@ public class JwtTokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest,
                                     HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
-        if(jwtCookieStore==null){
+        if (jwtCookieStore == null) {
             ServletContext servletContext = httpServletRequest.getServletContext();
             WebApplicationContext webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
             jwtCookieStore = webApplicationContext.getBean(JwtCookieStore.class);
         }
         try {
-            jwtCookieStore.retrieveToken(httpServletRequest, httpServletResponse)
+            jwtCookieStore.retrieveToken(httpServletRequest)
                     .ifPresent(auth -> SecurityContextHolder.getContext().setAuthentication(auth));
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
