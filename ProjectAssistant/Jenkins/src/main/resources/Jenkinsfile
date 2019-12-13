@@ -17,8 +17,11 @@ pipeline {
             }
         }
         stage('SonarQube Analyze') {
-            withSonarQubeEnv(credentialsId: '	sonaqube-token', installationName: 'sonaqube-token') {
-              sh 'mvn clean verify sonar:sonar'
+            steps {
+                withSonarQubeEnv(credentialsId: '	sonaqube-token', installationName: 'sonaqube-token') {
+                    sh 'mvn clean verify sonar:sonar'
+                }
+            }
         }
     }
     
