@@ -15,7 +15,7 @@ pipeline {
             }
             post {
                 always {
-                    junit 'Authentication/target/surefire-reports/*.xml'
+                    junit testResults: '**/target/surefire-reports/*.xml', allowEmptyResults: true
                 }
             }
         }
@@ -27,5 +27,11 @@ pipeline {
             }
         }
     }
-    
+    post {
+        failure {
+            emailext body: "${currentBuild.currentResult}: Job ${env.JOB_NAME} build ${env.BUILD_NUMBER}\n More info at: ${env.BUILD_URL}",
+                recipientProviders: [[$class: 'DevelopersRecipientProvider'], [$class: 'RequesterRecipientProvider']],
+                subject: "Jenkins Build ${currentBuild.currentResult}: Job ${env.JOB_NAME}"
+        }
+    }
 }
